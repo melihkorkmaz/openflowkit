@@ -274,8 +274,10 @@
 .ofk-v2-code-editor-wrap { position: relative; flex: 1; min-height: 240px; }
 /* CodeMirror 6 surface (V2SourceEditor): the host fills the wrap and CodeMirror scrolls inside it.
    Always dark (VS Code Dark+ tones), whatever the app theme: code reads like it does in an IDE. */
-.ofk-v2-code-editor {
+.ofk-v2-code-editor, .cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons {
   --code-bg: #1e1e1e; --code-gutter: #1e1e1e; --code-line: #2a2d2e; --code-border: #3c3c3c; --code-text: #d4d4d4; --code-muted: #858585;
+}
+.ofk-v2-code-editor {
   position: absolute; inset: 0; border: 1px solid var(--code-border); border-radius: 8px; overflow: hidden; background: var(--code-bg); color-scheme: dark;
 }
 .ofk-v2-code-editor:focus-within { border-color: var(--ofk-accent); }
@@ -291,6 +293,13 @@
 .ofk-v2-code-editor .cm-gutters { border-right: 1px solid var(--code-border); background: var(--code-gutter); color: var(--code-muted); font-size: 12px; }
 .ofk-v2-code-editor .cm-activeLineGutter { background: var(--code-line); color: #c6c6c6; }
 .ofk-v2-code-editor .cm-placeholder { color: #6a6a6a; }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons { z-index: var(--ofk-layer-menu, 1000); color-scheme: dark; border: 1px solid var(--code-border); border-radius: 6px; background: var(--code-bg); color: var(--code-text); max-width: min(520px, 85vw); }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons ul { max-height: 280px; }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons ul li { display: flex; align-items: center; gap: 8px; padding: 5px 8px; }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons ul li[aria-selected] { background: #04395e; color: var(--code-text); }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons .cm-completionLabel { overflow: hidden; text-overflow: ellipsis; }
+.cm-tooltip.cm-tooltip-autocomplete.ofk-source-icons .cm-completionDetail { margin-left: auto; color: var(--code-muted); font-size: 11px; }
+.ofk-source-icon-preview { width: 24px; height: 24px; flex: 0 0 24px; object-fit: contain; background: #fff; border-radius: 3px; }
 /* Token roles from src/dsl/highlight.ts. */
 .ofk-v2-code-editor [data-token='keyword'] { color: #c586c0; }
 .ofk-v2-code-editor [data-token='name'] { color: #9cdcfe; }

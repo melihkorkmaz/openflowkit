@@ -1,6 +1,5 @@
 # State
 What is done and what is next. Maintainers' plan and logs live in the untracked `docs/` folder.
-
 ## Now (2026-11-07): app 2.2.0 and MCP server + CLI 0.3.0
 - 2.2.0: comments on the canvas, the Threads panel and agent thread tools (@svallory, #102/#104/#105/#103, landed
   through #111–#114 because his fork is org-owned and takes no maintainer pushes), Excalidraw import (@Mr-Macharia,
@@ -26,6 +25,7 @@ smoke the MCP Worker, push `mcp-vX.Y.Z` (registry), then the app tag `vX.Y.Z` (i
   agent op registry for MCP, CLI, WebMCP, the in-app assistant, PR Action, Claude Code / Codex plugins.
 - Comment threads: pins on the canvas, the Threads panel, agent tools; a `.openflow.json` keeps them, exports and
   share links leave them out unless **Include comments**.
+- Code editor icon search with previews, keyboard/click selection and one-step undo — Codex, 2026-11-13.
 
 ## Known ceilings (`// ponytail:` in code)
 - Whole SVG re-emitted per export; GIF 256 colours ≤ 20 fps; headless layout 1000 shapes / 400 connections.

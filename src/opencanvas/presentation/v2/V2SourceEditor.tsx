@@ -1,13 +1,14 @@
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { acceptCompletion, closeBrackets, closeBracketsKeymap, closeCompletion, completionStatus, moveCompletionSelection, startCompletion } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap, indentLess, indentMore } from '@codemirror/commands';
-import { Annotation, Compartment, EditorSelection, EditorState, RangeSetBuilder, StateEffect, StateField, type Extension } from '@codemirror/state';
+import { Annotation, Compartment, EditorSelection, EditorState, Prec, RangeSetBuilder, StateEffect, StateField, type Extension } from '@codemirror/state';
 import {
   Decoration, type DecorationSet, drawSelection, EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers,
-  placeholder as placeholderText, ViewPlugin, type ViewUpdate,
+  placeholder as placeholderText, tooltips, ViewPlugin, type ViewUpdate,
 } from '@codemirror/view';
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import type { DslDiagnostic } from '../../../dsl/ast';
 import { highlightLine } from '../../../dsl/highlight';
+import { iconValueAt, sourceIconCompletion } from './sourceIconCompletion';
 
 export interface V2SourceEditorHandle {
   focus(): void;
@@ -124,15 +125,27 @@ export const V2SourceEditor = forwardRef<V2SourceEditorHandle, Props>(function V
       EditorState.tabSize.of(2), EditorView.lineWrapping, placeholderText(latest.current.placeholder), highlighter, diagnosticLines,
       attributes.current.of(EditorView.contentAttributes.of(latest.current.contentAttributes)),
       // The panel's keys first (suggestions, Escape, Ctrl+Space); the input method owns every key while it composes.
-      EditorView.domEventHandlers({
+      Prec.highest(EditorView.domEventHandlers({
         keydown: (event, view) => {
           // Claimed but not prevented: neither the keymap nor the panel sees it, the input method does.
           if (event.isComposing || view.composing || event.keyCode === 229) return true;
+          const line = view.state.doc.lineAt(view.state.selection.main.head);
+          const inIcon = iconValueAt(line.text, view.state.selection.main.head - line.from);
+          let handled = false;
+          if ((event.ctrlKey || event.metaKey) && event.key === ' ' && inIcon) handled = startCompletion(view);
+          else if (completionStatus(view.state)) {
+            if (event.key === 'Escape') handled = closeCompletion(view);
+            else if (event.key === 'ArrowDown') handled = moveCompletionSelection(true)(view);
+            else if (event.key === 'ArrowUp') handled = moveCompletionSelection(false)(view);
+            else if (event.key === 'Enter' || event.key === 'Tab') handled = acceptCompletion(view);
+          }
+          if (handled) { event.preventDefault(); return true; }
           if (!latest.current.onKey(event)) return false;
           event.preventDefault();
           return true;
         },
-      }),
+      })),
+      tooltips({ parent: document.body }), sourceIconCompletion,
       keymap.of([
         // An empty caret indents by a tab stop at the caret; a selection indents its lines. Shift+Tab outdents.
         { key: 'Tab', run: (view) => view.state.selection.ranges.every((range) => range.empty) ? indentToTabStop(view) : indentMore(view), shift: indentLess },

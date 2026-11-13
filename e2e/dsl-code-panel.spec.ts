@@ -5,6 +5,48 @@ type V2Api = { getState(): { nodes: string[] } };
 const count = (page: import('@playwright/test').Page) => page.evaluate(() =>
   (window as unknown as { __V2__?: V2Api }).__V2__?.getState().nodes.length ?? 0);
 
+for (const theme of ['light', 'dark'] as const) test(`icon search previews and replaces only the icon value, with keyboard, click and undo (${theme}) @gate`, async ({ page }, testInfo) => {
+  await page.addInitScript((theme) => localStorage.setItem('openflowkit-v2-preferences', JSON.stringify({ theme })), theme);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.waitForSelector('[data-testid="v2-canvas"]');
+  await page.getByRole('toolbar', { name: 'Workspace', exact: true }).getByRole('button', { name: 'Diagram as code' }).click();
+  const source = page.getByRole('textbox', { name: 'Diagram source' });
+  const prefix = 'architecture\nperson KID checker [icon: ';
+  const suffix = ', desc: Verifies all students have KIDs, tags: tbc]';
+  await source.fill(`${prefix}user chec${suffix}`);
+  await source.press('ControlOrMeta+Home');
+  await source.press('ArrowDown');
+  await source.press('Home');
+  // Place the caret just before the comma, then finish a human-readable query.
+  for (let i = 0; i < prefix.split('\n')[1]!.length + 'user chec'.length; i++) await source.press('ArrowRight');
+  await page.keyboard.type('k');
+  const choice = page.getByRole('option').filter({ hasText: 'tabler/user-check' }).first();
+  await expect(choice).toBeVisible();
+  await expect.poll(() => choice.locator('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  const popup = await page.locator('.ofk-source-icons').boundingBox();
+  expect(popup!.x + popup!.width).toBeLessThanOrEqual(1440);
+  await page.screenshot({ path: testInfo.outputPath(`icon-completion-${theme}.png`) });
+  await source.press('Escape');
+  await expect(choice).toBeHidden();
+  await expect(source).toBeFocused();
+  await source.press('ControlOrMeta+Space');
+  await expect(choice).toBeVisible();
+  await source.press('Tab');
+  await expect.poll(() => sourceText(page)).toBe(`${prefix}tabler/user-check${suffix}`);
+  await source.press('ControlOrMeta+z');
+  await expect.poll(() => sourceText(page)).toBe(`${prefix}user check${suffix}`);
+  await source.press('ControlOrMeta+Space');
+  await expect(choice).toBeVisible();
+  await choice.click();
+  await expect.poll(() => sourceText(page)).toBe(`${prefix}tabler/user-check${suffix}`);
+  await expect(source).toBeFocused();
+  await source.press('Escape');
+  await page.getByRole('button', { name: 'Generate diagram' }).click();
+  await expect.poll(() => count(page)).toBe(2);
+  await expect(page.locator('#v2-code-diagnostics')).toBeHidden();
+});
+
 test('diagram source generates and regenerates as one undo step', async ({ page }) => {
   await page.goto('/');
   await page.waitForSelector('[data-testid="v2-canvas"]');

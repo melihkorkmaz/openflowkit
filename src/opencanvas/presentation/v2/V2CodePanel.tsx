@@ -109,7 +109,7 @@ export function V2CodePanel({
           </div>
         ) : null}
         <div className="ofk-v2-code-editor-wrap">
-          <V2SourceEditor ref={editorRef} value={code} onChange={(value) => { setFormatError(null); onCodeChange(value); }}
+          <V2SourceEditor ref={editorRef} value={code} onChange={(value) => { setSuggestions([]); setFormatError(null); onCodeChange(value); }}
             onOpenBracket={() => openSuggestions('attrs')} onKey={handleSourceKey} diagnostics={errors}
             autoFocus={autoFocus} selectAll={selectAll} placeholder={'flowchart\nStart -> Build -> Ship\nBuild [diamond]'}
             contentAttributes={{
@@ -118,11 +118,12 @@ export function V2CodePanel({
               ...(errors.some((item) => item.severity === 'error') ? { 'aria-invalid': 'true' } : {}),
               ...(suggestions.length ? { 'aria-controls': 'v2-code-suggestions' } : {}),
             }} />
-          <span id="v2-code-keys" className="ofk-visually-hidden">Tab indents, Shift+Tab outdents. Esc leaves the editor.</span>
+          <span id="v2-code-keys" className="ofk-visually-hidden">Tab indents, Shift+Tab outdents. Esc leaves the editor. After icon: type a name to search icons; arrows browse, Enter or Tab selects, Esc dismisses. Ctrl+Space reopens suggestions.</span>
           {suggestions.length ? <div id="v2-code-suggestions" role="listbox" className="ofk-v2-code-suggestions">
             {suggestions.slice(0, 12).map((suggestion, index) => <button type="button" role="option" aria-selected={index === suggestionIndex} key={suggestion} onPointerDown={(event) => event.preventDefault()} onClick={() => chooseSuggestion(suggestion)}>{suggestion}</button>)}
           </div> : null}
         </div>
+        <p className="ofk-v2-muted">Find an icon: type <code>icon: user check</code> inside brackets, then choose a preview.</p>
         <div id="v2-code-diagnostics" className="ofk-v2-code-diagnostics" aria-live="polite" hidden={errors.length === 0}>
           {errors.slice(0, 8).map((item, index) => (
             <button type="button" key={`${item.line}:${item.col}:${item.code}:${index}`} data-tone={item.severity} onClick={() => {

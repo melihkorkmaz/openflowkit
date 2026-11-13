@@ -15,6 +15,7 @@ Keys are shown with `⌘`; on Windows and Linux read the same rows as `Ctrl`. Th
 | --- | --- |
 | Select | `V` |
 | Hand | `H` |
+| Comment | `C` |
 | Rectangle | `R` |
 | Ellipse | `O` |
 | Shapes | `S` |
@@ -27,6 +28,8 @@ Keys are shown with `⌘`; on Windows and Linux read the same rows as `Ctrl`. Th
 | Frame | `F` |
 | Sticky note | `N` |
 | Place the armed shape at the centre | `↵` |
+| Place a comment at the selection or the centre | `↵` |
+| Move a focused comment pin, onto the shape under it (10× with Shift) | `⌥ Arrows` |
 | Connect two selected shapes | `A` |
 | Insert: media, charts, frames, wireframe | `⇧S` |
 | Icons and emoji | `I / E` |
@@ -98,7 +101,9 @@ Keys are shown with `⌘`; on Windows and Linux read the same rows as `Ctrl`. Th
 | Diagram as code | `⌥C` |
 | Generate the diagram (in the code panel) | `⌘↵` |
 | Convert pasted Mermaid / Structurizr / D2 (in the code panel) | `⇧⌘M` |
-| Format the source (in the code panel) | `⇧⌥F` |
+| Format the source (in the code panel) | `⌥⇧F` |
+| Search icons (after icon: in the code panel) | `⌃Space` |
+| Choose an icon suggestion | `↵ / Tab` |
 | Resize the panel (on its left edge) | `← / →` |
 | Inspect selection | `⌥I` |
 | AI assistant | `⌘J` |

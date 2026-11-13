@@ -69,6 +69,20 @@ describe('V2CodePanel', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
+  it('keeps IME Enter out of icon completion, then accepts an icon without generating', async () => {
+    const onCodeChange = vi.fn();
+    const onGenerate = vi.fn();
+    panel({ code: 'architecture\nperson Checker [icon: user check]', onCodeChange, onGenerate });
+    caret(view().state.doc.length - 1);
+    fireEvent.keyDown(source(), { key: ' ', ctrlKey: true });
+    await screen.findByText('tabler/user-check');
+    fireEvent.keyDown(source(), { key: 'Enter', isComposing: true });
+    expect(onCodeChange).not.toHaveBeenCalled();
+    fireEvent.keyDown(source(), { key: 'Enter', metaKey: true });
+    expect(onCodeChange).toHaveBeenLastCalledWith('architecture\nperson Checker [icon: tabler/user-check]');
+    expect(onGenerate).not.toHaveBeenCalled();
+  });
+
   it('opens ready to paste over: the source is focused and selected; a template opening leaves focus alone (U1-02)', () => {
     const { unmount } = panel({ code: 'flowchart\nA -> B', selectAll: true });
     expect(source()).toHaveFocus();
