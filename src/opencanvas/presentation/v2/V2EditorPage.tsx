@@ -73,8 +73,11 @@ import { scheduleV2Thumbnail } from './v2Thumbnail';
 import type { DocumentCommand } from '../../domain/commands/types';
 import './v2EditorPage.css';
 
-/** A shared link opens here: the decrypted document, read-only, never stored; `onEdit` saves a local copy. */
-export interface V2SharedView { readonly document: SceneDocumentV1; readonly onEdit: () => Promise<void> }
+/**
+ * A shared link or a published page opens here: the document, read-only, never stored. `onEdit` saves a local copy;
+ * a published page has none (its reader may not be signed in).
+ */
+export interface V2SharedView { readonly document: SceneDocumentV1; readonly onEdit?: () => Promise<void> }
 
 export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}): React.JSX.Element {
   // Under /s/:id the route's id is the share's, not a stored document's.

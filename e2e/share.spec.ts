@@ -1,5 +1,6 @@
 import { FakeBucket, FakeQuotaNamespace } from '../worker/fakeBucket';
 import { handle, type Env } from '../worker/index';
+import { centreOf } from './helpers';
 import { expect, test, type BrowserContext, type Page } from './test';
 
 // Share links: encrypt in the editor, store ciphertext, open read-only from the link.
@@ -147,6 +148,30 @@ test('share → open in another tab → delete → deleted message @gate', async
   await gone.goto(link);
   await expect(gone.getByText('This link has been deleted.')).toBeVisible();
   await expectSystemState(gone, 'Back to home');
+});
+
+test('a shared C4 model opens in Map and a click expands a box, read-only @gate', async ({ page, context }) => {
+  test.setTimeout(60_000);
+  await serve(context);
+  await page.goto('/');
+  await page.waitForSelector('[data-testid="v2-canvas"]');
+  await page.getByRole('toolbar', { name: 'Workspace', exact: true }).getByRole('button', { name: 'Architecture model', exact: true }).click();
+  await page.getByRole('button', { name: 'Create C4 workspace', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __V2__: { getDocument(): { pages: unknown[] } | null } }).__V2__.getDocument()?.pages.length)).toBe(3);
+  const link = await shareLink(page);
+
+  // The public page (#/p/:slug) opens its document in this same viewer.
+  const viewer = await context.newPage();
+  await viewer.goto(link);
+  const map = viewer.getByRole('button', { name: 'Map', exact: true });
+  await map.click();
+  await expect(map).toHaveAttribute('aria-pressed', 'true');
+  const nodes = () => viewer.evaluate(() => (window as unknown as { __V2__: { getMapState(): { nodes: string[] } } }).__V2__.getMapState().nodes);
+  await expect.poll(nodes).toContain('shop.api');
+  expect(await nodes()).not.toContain('shop.api.orders');
+  const centre = await centreOf(viewer, 'shop.api');
+  await viewer.mouse.click(centre.x, centre.y);
+  await expect.poll(nodes).toContain('shop.api.orders');
 });
 
 test('a link with its key stripped or cut short says so @gate', async ({ page, context }) => {

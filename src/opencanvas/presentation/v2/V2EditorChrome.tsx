@@ -52,7 +52,7 @@ interface EditorChromeProps {
   readonly backToMap: () => boolean;
   readonly pinRef: MutableRefObject<() => void>;
   readonly pinnable: boolean;
-  readonly shared: { readonly onEdit: () => Promise<void> } | undefined;
+  readonly shared: { readonly onEdit?: (() => Promise<void>) | undefined } | undefined;
   readonly exportPanel: ReturnType<typeof useV2ExportPanel>;
   readonly commit: (command: DocumentCommand) => void;
   readonly leaveStart: <A extends unknown[], R>(action: (...args: A) => R) => (...args: A) => R;
@@ -95,7 +95,7 @@ export function V2EditorChrome(p: EditorChromeProps): React.JSX.Element {
       mapStart={map.start}
       {...(map.active ? { mapPath: map.path, onMapPath: map.reveal } : {})}
       onCrumb={(crumb) => p.architectureActions.openCrumb(crumb)}
-      {...(shared ? { onEditShared: shared.onEdit } : {})}
+      {...(shared?.onEdit ? { onEditShared: shared.onEdit } : {})}
       onOpenExport={(anchor) => exportPanel.openExport(anchor, 'page')}
       {...(shared ? {} : { onOpenShare: (anchor: HTMLElement | null) => exportPanel.openExport(anchor, 'page', 'menu-share') })}
       onDismissExport={() => exportPanel.setExportOpen(false)}
