@@ -141,6 +141,8 @@ export function shortcutGroups(apple = isApplePlatform()): readonly ShortcutGrou
         ['Diagram as code', '⌥C', ['KeyC']],
         ['Generate the diagram (in the code panel)', '⌘↵', []],
         ['Convert pasted Mermaid / Structurizr / D2 (in the code panel)', '⇧⌘M', []],
+        ['Format the source (in the code panel)', '⇧⌥F', []],
+        ['Resize the panel (on its left edge)', '← / →', []],
         ['Inspect selection', '⌥I', ['KeyI']],
         ['AI assistant', '⌘J', ['j']],
         ['This cheatsheet', '?', ['?']],

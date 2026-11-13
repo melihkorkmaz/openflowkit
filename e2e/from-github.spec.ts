@@ -1,3 +1,4 @@
+import { sourceText } from './helpers';
 import { expect, test, type Page } from './test';
 
 // Repo → diagram (#/from/github/<owner>/<repo>): GitHub's tree and raw files are served by
@@ -44,8 +45,8 @@ test('a public repo opens in the editor as its architecture @gate', async ({ pag
   await expect.poll(() => page.url(), { timeout: 20_000 }).toContain('#/d/');
   const source = page.getByRole('textbox', { name: 'Diagram source' });
   await expect(source).toBeVisible();
-  for (const unit of ['container web', 'container api', 'container worker', 'store db']) await expect(source).toHaveValue(new RegExp(`^\\s*${unit}\\b`, 'm'));
-  await expect(source).toHaveValue(/store db \[cylinder, tech: PostgreSQL/);
+  for (const unit of ['container web', 'container api', 'container worker', 'store db']) await expect.poll(() => sourceText(page)).toMatch(new RegExp(`^\\s*${unit}\\b`, 'm'));
+  await expect.poll(() => sourceText(page)).toMatch(/store db \[cylinder, tech: PostgreSQL/);
   // One product: the landing page is its services, not a lone system box.
   await expect.poll(() => page.evaluate(() => {
     type Api = { getDocument(): { pages: { name: string; nodes: { content?: { label?: string } }[] }[] } | null };

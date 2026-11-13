@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mcpConfig } from './V2AgentConnect';
-import { readPreferences } from './useV2Preferences';
+import { act, renderHook } from '@testing-library/react';
+import { clampPanelWidth, readPreferences, useV2Preferences } from './useV2Preferences';
 
 describe('bridge token', () => {
   beforeEach(() => localStorage.clear());
@@ -47,5 +48,33 @@ describe('threads panel preferences', () => {
     expect(readPreferences().threadReads).toEqual({ 'd:t': '2026-10-26T12:00:00.000Z', 'd:u': 'unread' });
     store({ threadReads: 'nope' });
     expect(readPreferences().threadReads).toEqual({});
+  });
+});
+
+describe('workspace panel width', () => {
+  beforeEach(() => localStorage.clear());
+  const store = (value: unknown) => localStorage.setItem('openflowkit-v2-preferences', JSON.stringify(value));
+
+  it('defaults to 440 and keeps a stored width within 360–860', () => {
+    expect(readPreferences().workspacePanelWidth).toBe(440);
+    store({ workspacePanelWidth: 612.4 });
+    expect(readPreferences().workspacePanelWidth).toBe(612);
+    store({ workspacePanelWidth: 100 });
+    expect(readPreferences().workspacePanelWidth).toBe(360);
+    store({ workspacePanelWidth: 5000 });
+    expect(readPreferences().workspacePanelWidth).toBe(860);
+    store({ workspacePanelWidth: 'wide' });
+    expect(readPreferences().workspacePanelWidth).toBe(440);
+  });
+
+  it('caps at 65% of the viewport, never under the minimum', () => {
+    expect(clampPanelWidth(800, 1000)).toBe(650);
+    expect(clampPanelWidth(800, 400)).toBe(360);
+  });
+
+  it('persists through updatePreferences', () => {
+    const { result } = renderHook(() => useV2Preferences());
+    act(() => result.current.updatePreferences({ workspacePanelWidth: 520 }));
+    expect(readPreferences().workspacePanelWidth).toBe(520);
   });
 });

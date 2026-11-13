@@ -55,5 +55,5 @@ test('the Icon panel puts the icon left of the text, undoes in one step, and the
   await expect.poll(async () => (await nodeOf(page, 'api')).content.contentLayout).toMatchObject({ iconPlacement: 'left' });
 
   await page.getByRole('toolbar', { name: 'Workspace', exact: true }).getByRole('button', { name: 'Diagram as code' }).click();
-  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toHaveValue(/iconpos: left/);
+  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toContainText(/iconpos: left/);
 });

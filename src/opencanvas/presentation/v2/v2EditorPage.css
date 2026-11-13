@@ -225,6 +225,12 @@
 .ofk-v2 .ofk-floating-region[data-slot='bottom-start'] .ofk-toolbar { gap: 0; }
 .ofk-v2 .ofk-v2-workspace-panel,
 .ofk-v2 .ofk-agent-panel { top: 0; bottom: 0; right: 0; border-radius: 0; border-width: 0 0 0 1px; box-shadow: none; --ofk-layout-panelWidth: var(--v2-panel-width); --ofk-layout-panelMaxWidth: var(--v2-panel-width); }
+/* The workspace panel's left edge: drag or arrow keys set --v2-panel-width (inline on .ofk-v2, from preferences). */
+.ofk-v2-panel-resize { position: absolute; top: 0; bottom: 0; right: calc(var(--v2-panel-width) - 4px); width: 8px; z-index: calc(var(--ofk-layer-panel) + 1); cursor: col-resize; touch-action: none; }
+.ofk-v2-panel-resize::after { content: ''; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: transparent; transition: background var(--ofk-motion-fast, 120ms); }
+.ofk-v2-panel-resize:hover::after, .ofk-v2-panel-resize:active::after { background: var(--ofk-accent); }
+.ofk-v2-panel-resize:focus-visible { outline: none; }
+.ofk-v2-panel-resize:focus-visible::after { left: 2px; width: 4px; background: var(--ofk-focus); }
 .ofk-v2 .ofk-v2-layers-panel { left: 0; top: 0; bottom: 0; border-radius: 0; border-width: 0 1px 0 0; box-shadow: none; --ofk-layout-panelWidth: var(--v2-left-width); --ofk-layout-panelMaxWidth: var(--v2-left-width); }
 .ofk-v2-welcome { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
 .ofk-v2-welcome-center { position: absolute; top: calc(45% - 107px); left: 50%; transform: translateX(-50%); width: min(600px, calc(100% - 180px)); text-align: center; }
@@ -266,22 +272,35 @@
 .ofk-v2-panel-footer .ofk-button { width: 100%; }
 .ofk-v2-panel-footer p { font-size: 11px; text-align: center; color: var(--ofk-muted); line-height: 1.6; }
 .ofk-v2-code-editor-wrap { position: relative; flex: 1; min-height: 240px; }
-/* Both layers wrap the same way and keep the same scrollbar room, so the caret never drifts off its glyph. */
-.ofk-v2-code-editor, .ofk-v2-code-highlight { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; overflow: hidden auto; scrollbar-gutter: stable; white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal; tab-size: 2; border-radius: 8px; padding: 16px 12px; font: 14px/1.9 var(--ofk-font-mono, monospace); letter-spacing: 0; }
-.ofk-v2-code-editor { resize: none; border: 1px solid var(--ofk-border); color: transparent; caret-color: var(--ofk-text); background: transparent; -webkit-text-fill-color: transparent; }
-.ofk-v2-code-editor::selection { background: color-mix(in srgb, var(--ofk-accent) 28%, transparent); -webkit-text-fill-color: transparent; }
-.ofk-v2-code-editor::placeholder { color: var(--ofk-muted); -webkit-text-fill-color: var(--ofk-muted); opacity: 1; }
-.ofk-v2 textarea.ofk-v2-code-editor:focus-visible { outline: none; border-color: var(--ofk-accent); }
-.ofk-v2-code-highlight { pointer-events: none; border: 1px solid transparent; color: var(--ofk-secondary); background: var(--ofk-canvas); }
-.ofk-v2-code-highlight [data-token='arrow'], .ofk-v2-code-highlight [data-token='punctuation'] { color: var(--ofk-accent); }
-.ofk-v2-code-highlight [data-token='string'] { color: var(--ofk-success); }
-.ofk-v2-code-highlight [data-token='comment'] { color: var(--ofk-muted); font-style: italic; }
+/* CodeMirror 6 surface (V2SourceEditor): the host fills the wrap and CodeMirror scrolls inside it. */
+.ofk-v2-code-editor { position: absolute; inset: 0; border: 1px solid var(--ofk-border); border-radius: 8px; overflow: hidden; background: var(--ofk-canvas); }
+.ofk-v2-code-editor:focus-within { border-color: var(--ofk-accent); }
+.ofk-v2-code-editor .cm-editor { height: 100%; color: var(--ofk-secondary); background: transparent; font: 14px/1.9 var(--ofk-font-mono, monospace); }
+.ofk-v2-code-editor .cm-editor.cm-focused { outline: none; }
+.ofk-v2-code-editor .cm-scroller { font: inherit; line-height: inherit; overflow: auto; scrollbar-gutter: stable; }
+.ofk-v2-code-editor .cm-content { padding: 12px 0; caret-color: var(--ofk-text); }
+.ofk-v2-code-editor .cm-content:focus-visible { outline: none; }
+.ofk-v2-code-editor .cm-line { padding: 0 12px 0 8px; }
+.ofk-v2-code-editor .cm-cursor { border-left-color: var(--ofk-text); }
+.ofk-v2-code-editor .cm-selectionBackground, .ofk-v2-code-editor .cm-focused .cm-selectionBackground { background: color-mix(in srgb, var(--ofk-accent) 28%, transparent) !important; }
+.ofk-v2-code-editor .cm-activeLine { background: color-mix(in srgb, var(--ofk-raised) 60%, transparent); }
+.ofk-v2-code-editor .cm-gutters { border-right: 1px solid var(--ofk-border); background: var(--ofk-surface); color: var(--ofk-muted); font-size: 12px; }
+.ofk-v2-code-editor .cm-activeLineGutter { background: var(--ofk-raised); color: var(--ofk-text); }
+.ofk-v2-code-editor .cm-placeholder { color: var(--ofk-muted); }
+.ofk-v2-code-editor [data-token='arrow'], .ofk-v2-code-editor [data-token='punctuation'] { color: var(--ofk-accent); }
+.ofk-v2-code-editor [data-token='string'] { color: var(--ofk-success); }
+.ofk-v2-code-editor [data-token='comment'] { color: var(--ofk-muted); font-style: italic; }
+.ofk-v2-code-editor .cm-line[data-tone='error'] { background: color-mix(in srgb, var(--ofk-danger, #d33) 10%, transparent); box-shadow: inset 2px 0 var(--ofk-danger, #d33); }
+.ofk-v2-code-editor .cm-line[data-tone='warning'] { background: var(--ofk-warningSoft); box-shadow: inset 2px 0 var(--ofk-warning); }
 .ofk-v2-code-suggestions { position: absolute; z-index: var(--ofk-layer-menu); left: 12px; bottom: 12px; display: flex; flex-direction: column; width: min(220px, calc(100% - 24px)); max-height: 220px; overflow: auto; padding: 4px; border: 1px solid var(--ofk-border); border-radius: 8px; background: var(--ofk-surface); box-shadow: var(--ofk-shadow-floating); }
 .ofk-v2-code-suggestions > button { min-height: 30px; padding: 0 8px; border: 0; border-radius: 5px; background: transparent; color: var(--ofk-text); font: 12px var(--ofk-font-mono, monospace); text-align: left; }
 .ofk-v2-code-suggestions > button[aria-selected='true'], .ofk-v2-code-suggestions > button:hover { background: var(--ofk-raised); }
 .ofk-v2-code-panel .ofk-panel-body { overflow: hidden; }
 .ofk-v2-code-panel .ofk-v2-panel-stack { gap: 10px; height: 100%; }
-.ofk-code-caption { display: flex; justify-content: space-between; color: var(--ofk-muted); font-size: 11px; }
+.ofk-code-caption { display: flex; align-items: center; gap: 8px; color: var(--ofk-muted); font-size: 11px; }
+.ofk-code-caption > span:nth-child(2) { flex: 1; text-align: right; }
+.ofk-code-caption .ofk-button { min-height: 26px; padding: 0 8px; font-size: 12px; }
+.ofk-code-caption kbd { margin-left: 4px; font: 11px var(--ofk-font-mono, monospace); opacity: 0.6; }
 .ofk-code-caption > span:first-child { color: var(--ofk-secondary); font-weight: 500; }
 .ofk-code-palette-label { font-size: 11px; color: var(--ofk-secondary); }
 .ofk-v2-code-panel .ofk-v2-panel-footer kbd { margin-left: 6px; font: 11px var(--ofk-font-mono, monospace); opacity: 0.6; }
@@ -614,12 +633,12 @@
 .ofk-v2-shortcut-group h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ofk-muted); margin: 0 0 10px; }
 .ofk-v2-shortcut-group > div { display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding: 7px 0; }
 @media (max-width: 1100px) {
-  .ofk-v2 { --v2-panel-width: 360px; }
   .ofk-v2[data-left-open='true'][data-workspace-open='true'] .ofk-v2-welcome { display: none; }
   .ofk-v2-guide { display: none; }
   .ofk-v2-welcome-actions { flex-wrap: wrap; }
 }
 @media (max-width: 720px) {
+  .ofk-v2-panel-resize { display: none; }
   .ofk-v2 .ofk-v2-workspace-panel, .ofk-v2 .ofk-agent-panel, .ofk-v2 .ofk-v2-layers-panel { top: 0; bottom: 0; left: 64px; right: 0; width: auto; max-width: none; max-height: none; border-radius: 0; }
   /* The panel covers the canvas here, so a selection toolbar would only sit on top of it. */
   .ofk-v2:has(.ofk-v2-workspace-panel, .ofk-agent-panel, .ofk-v2-layers-panel) [data-context-bar] { display: none; }

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from './test';
-import { centreOf, doc, state } from './helpers';
+import { centreOf, doc, sourceText, state } from './helpers';
 
 // M4.5: the model changes under an open Map (the Code panel, or the agent over the live bridge). The map re-derives with its
 // motion, keeps what the reader opened and the selection, and undo brings it back with an announcement.
@@ -75,7 +75,7 @@ for (const reduced of [false, true]) {
     // The panel may already be open (creating the workspace opens it): the rail button toggles.
     if (!(await source.isVisible())) await page.getByRole('toolbar', { name: 'Workspace', exact: true }).getByRole('button', { name: 'Diagram as code', exact: true }).click();
     await expect(source).toBeVisible();
-    const text = await source.inputValue();
+    const text = await sourceText(page);
     expect(withCache(text), 'the starter text has the lines to extend').not.toBe(text);
     await watchMotion(page);
     await source.fill(withCache(text));

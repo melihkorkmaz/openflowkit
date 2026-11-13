@@ -98,6 +98,8 @@ Keys are shown with `⌘`; on Windows and Linux read the same rows as `Ctrl`. Th
 | Diagram as code | `⌥C` |
 | Generate the diagram (in the code panel) | `⌘↵` |
 | Convert pasted Mermaid / Structurizr / D2 (in the code panel) | `⇧⌘M` |
+| Format the source (in the code panel) | `⇧⌥F` |
+| Resize the panel (on its left edge) | `← / →` |
 | Inspect selection | `⌥I` |
 | AI assistant | `⌘J` |
 | This cheatsheet | `?` |

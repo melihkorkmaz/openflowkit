@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ComponentProps, type ReactNode } from 'react';
 import { C4_STARTER } from '../../../agent/starterTemplates';
 import { placedElementId } from '../../../dsl/model/model';
 import type { CanvasSelection } from '../../application/selection/selection';
@@ -6,7 +6,6 @@ import type { useDocumentSession } from '../../application/session/useDocumentSe
 import { inspectSelection } from '../../domain/scene/inspect';
 import type { ScenePage } from '../../domain/document/types';
 import { V2AgentConnect } from './V2AgentConnect';
-import { V2CodePanel } from './V2CodePanel';
 import { V2FlowPanel } from './V2FlowPanel';
 import { V2InspectPanel } from './V2InspectPanel';
 import { V2ModelPanel } from './V2ModelPanel';
@@ -27,6 +26,10 @@ import { V2ThreadsPanel } from './V2ThreadsPanel';
 import { V2WorkspaceRail } from './V2Workspace';
 import type { ToastItem } from '../design-system';
 import { counted } from './v2EditorUtil';
+
+// CodeMirror ships in the code panel's own chunk, fetched once the editor is up so opening the panel never waits on it.
+const loadCodePanel = () => import('./V2CodePanel');
+const V2CodePanel = lazy(async () => ({ default: (await loadCodePanel()).V2CodePanel }));
 
 interface SidePanelsProps {
   readonly panels: ReturnType<typeof useV2Panels>;
@@ -75,6 +78,7 @@ export function V2EditorSidePanels(p: SidePanelsProps): React.JSX.Element {
   } = p;
   const { agentBridge, webMcp } = agents;
   const openWorkspace = panels.openWorkspace;
+  useEffect(() => { void loadCodePanel(); }, []);
   return (
     <>
       <V2WorkspaceRail mode={panels.workspace} onShortcuts={panels.toggleShortcuts} agentConnected={agentBridge.status === 'connected'}
@@ -85,7 +89,7 @@ export function V2EditorSidePanels(p: SidePanelsProps): React.JSX.Element {
           else panels.toggleWorkspace(mode);
         }} />
       {p.children}
-      {panels.workspace === 'code' ? <V2CodePanel code={code.draft} palette={preferences.diagramPalette} autoFocus={code.panelFocus} selectAll={code.panelSelect}
+      {panels.workspace === 'code' ? <Suspense fallback={null}><V2CodePanel code={code.draft} palette={preferences.diagramPalette} autoFocus={code.panelFocus} selectAll={code.panelSelect}
         onPaletteChange={(diagramPalette) => updatePreferences({ diagramPalette })}
         onCodeChange={code.edit}
         diagnostics={code.diagnostics} generating={code.generating} canvasEdited={code.canvasEdited}
@@ -94,7 +98,7 @@ export function V2EditorSidePanels(p: SidePanelsProps): React.JSX.Element {
           // Regenerating a bound diagram is an edit, not a new one.
           const fresh = code.frameId === null;
           void code.generate().then((committed) => { if (fresh) counted('created_code')(committed); });
-        }} onClose={() => { code.cancel(); panels.closeWorkspace(); }} /> : null}
+        }} onClose={() => { code.cancel(); panels.closeWorkspace(); }} /></Suspense> : null}
       {panels.workspace === 'agent' ? <V2AgentConnect status={agentBridge.status} detail={agentBridge.detail}
         activity={agentBridge.activity} agents={agentBridge.agents} onUndo={session.undo} webMcpTools={webMcp.tools} webMcpActivity={webMcp.activity}
         port={preferences.bridgePort} token={preferences.bridgeToken}

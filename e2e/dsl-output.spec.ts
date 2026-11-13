@@ -1,3 +1,4 @@
+import { sourceText } from './helpers';
 import { expect, test } from './test';
 import { readFileSync } from 'node:fs';
 
@@ -71,8 +72,8 @@ test('Mermaid pasted into the panel converts to DSL', async ({ page }) => {
   const convert = page.getByRole('button', { name: /Convert/ });
   await expect(convert).toBeVisible();
   await convert.click();
-  await expect(editor).toHaveValue(/flowchart right/);
-  await expect(editor).toHaveValue(/Check \[diamond\]/);
+  await expect(editor).toContainText(/flowchart right/);
+  await expect(editor).toContainText(/Check \[diamond\]/);
   await editor.press(process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as { __V2__?: V2Api }).__V2__?.getState().nodes.length ?? 0)).toBe(4);
 });
@@ -85,8 +86,8 @@ test('Structurizr pasted into the panel converts to a C4 workspace', async ({ pa
   await editor.fill('workspace {\n  model {\n    u = person "User"\n    s = softwareSystem "Shop" {\n      web = container "Web"\n    }\n    u -> web "Uses"\n  }\n  views {\n    systemContext s { include * }\n    container s { include * }\n  }\n}');
   await expect(page.getByText('Structurizr DSL detected.')).toBeVisible();
   await page.getByRole('button', { name: /Convert/ }).click();
-  await expect(editor).toHaveValue(/person User/);
-  await expect(editor).toHaveValue(/view container of Shop/);
+  await expect(editor).toContainText(/person User/);
+  await expect(editor).toContainText(/view container of Shop/);
   await editor.press(process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as { __V2__?: V2Api }).__V2__?.getDocument()?.pages.length ?? 0)).toBe(2);
 });
@@ -99,8 +100,8 @@ test('D2 pasted into the panel converts and generates', async ({ page }) => {
   await editor.fill('direction: right\nclouds: {\n  aws: AWS {\n    lb -> api\n    db: { shape: cylinder }\n    api -> db: reads\n  }\n}\nusers -> clouds.aws.lb');
   await expect(page.getByText('D2 detected.')).toBeVisible();
   await page.getByRole('button', { name: /Convert/ }).click();
-  await expect(editor).toHaveValue(/flowchart right/);
-  await expect(editor).toHaveValue(/db \[cylinder\]/);
+  await expect(editor).toContainText(/flowchart right/);
+  await expect(editor).toContainText(/db \[cylinder\]/);
   await editor.press(process.platform === 'darwin' ? 'Meta+Enter' : 'Control+Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as { __V2__?: V2Api }).__V2__?.getState().nodes.length ?? 0)).toBeGreaterThanOrEqual(4);
 });
@@ -156,8 +157,8 @@ test('canvas edits re-serialize through Edit as code', async ({ page }) => {
   expect(frameRect).toBeTruthy();
   await page.mouse.click(frameRect!.x + frameRect!.width / 2, frameRect!.y + 12, { button: 'right' });
   await page.getByRole('menuitem', { name: 'Edit as code' }).click();
-  const reopened = page.getByRole('textbox', { name: 'Diagram source' });
-  await expect(reopened).toHaveValue(/A -> B/);
+  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toBeVisible();
+  await expect.poll(() => sourceText(page)).toMatch(/A -> B/);
   await expect(page.getByText('Canvas edited — regenerate will overwrite those changes.')).toBeVisible();
   void editor;
 });

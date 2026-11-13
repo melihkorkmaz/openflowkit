@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from './test';
 import { MERMAID_COMPAT_FIXTURES } from '../scripts/mermaid-compat-fixtures.mjs';
-import { centreOf, clickNode, connect, doc, midpointOf, node, openCanvas, rect, state } from './helpers';
+import { centreOf, clickNode, connect, doc, midpointOf, node, openCanvas, rect, sourceText, state } from './helpers';
 
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
@@ -50,8 +50,8 @@ async function importMermaid(page: Page, source: string, mermaid: string) {
   await source.fill(mermaid);
   await expect(page.getByText('Mermaid detected.')).toBeVisible();
   await page.getByRole('button', { name: /^Convert/ }).click();
-  await expect.poll(async () => (await source.inputValue()) !== mermaid).toBe(true);
-  const converted = await source.inputValue();
+  await expect.poll(async () => (await sourceText(page)) !== mermaid).toBe(true);
+  const converted = await sourceText(page);
   await source.press(`${META}+Enter`);
   // Two fixtures can convert to byte-identical DSL, so the wait is "the canvas
   // has nodes", not "the revision moved": an unchanged document bumps nothing.
@@ -91,7 +91,7 @@ test('pasted Mermaid generates without a Convert click, and draws what Mermaid d
   await source.fill(readFileSync('src/services/dsl/fixtures/mermaid/platform.mmd', 'utf8'));
   await source.press(`${META}+Enter`);
   await expect.poll(async () => (await state(page)).connectors.length, { timeout: 15_000 }).toBe(63);
-  await expect(source).toHaveValue(/^flowchart down\nicons: off\n/);
+  await expect.poll(() => sourceText(page)).toMatch(/^flowchart down\nicons: off\n/);
   const found = await labels(page);
   for (const label of ['User Request', 'CDN / WAF', 'Logs', 'Metrics', 'Traces', 'Rate limit\nexceeded?']) expect(found).toContain(label);
   expect(found.filter((label) => /^(classDef|class |subgraph|style |linkStyle|%%)|\||<br/.test(label))).toEqual([]);

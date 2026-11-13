@@ -12,7 +12,7 @@ test('home starts a diagram from a template without any AI @gate', async ({ page
   await page.waitForSelector('[data-testid="v2-canvas"]');
   const welcome = page.getByTestId('v2-welcome');
   await expect.poll(async () => (await state(page)).nodes.length).toBeGreaterThan(4);
-  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toHaveValue(/title: User authentication/);
+  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toContainText(/title: User authentication/);
   await expect(welcome).toBeHidden();
   const documentBar = page.getByRole('toolbar', { name: 'Document' });
   await expect(documentBar).toContainText('User authentication');

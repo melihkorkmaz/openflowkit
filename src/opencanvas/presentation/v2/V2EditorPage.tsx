@@ -18,6 +18,7 @@ import { V2EditorOverlays } from './V2EditorOverlays';
 import { V2EditorSidePanels } from './V2EditorSidePanels';
 import type { ContextMenuTarget } from './V2ContextMenu';
 import { V2LoadCenter } from './V2LoadCenter';
+import { useViewportWidth, V2PanelResizeHandle } from './V2PanelResizeHandle';
 import { BrandLoader } from './BrandLoader';
 import { useV2Appearance } from './useV2Appearance';
 import { useV2Architecture } from './useV2Architecture';
@@ -58,7 +59,7 @@ import { useV2Threads } from './useV2Threads';
 import { codeToggle } from './v2CodeToggle';
 import { useV2Panels } from './useV2Panels';
 import type { V2GestureApi } from './v2PointerGestures';
-import { useV2Preferences } from './useV2Preferences';
+import { clampPanelWidth, useV2Preferences } from './useV2Preferences';
 import { useV2Proposal } from './useV2Proposal';
 import { useV2ProposalPreview } from './useV2ProposalPreview';
 import { useV2Selection } from './useV2Selection';
@@ -84,6 +85,8 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
   // Read before this document becomes the last one: a reload of a new, untouched diagram opens it again.
   const [lastOpen] = useState(lastDocumentId);
   const { preferences, updatePreferences } = useV2Preferences();
+  const viewportWidth = useViewportWidth();
+  const [draggedPanelWidth, setDraggedPanelWidth] = useState<number | null>(null);
   const panels = useV2Panels();
   const appearance = useV2Appearance(preferences.theme);
   const canvasDefaultColor = appearance === 'dark' ? '#191b19' : '#f7f7f5';
@@ -381,11 +384,13 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
     agentConnected: agents.agentBridge.status === 'connected', onDrawing: backTo !== null, setAnnouncement,
   });
 
+  const workspaceOpen = panels.workspace !== null || panels.shortcutsOpen || panels.motionOpen || chartPanelNode !== null;
+  const panelWidth = clampPanelWidth(draggedPanelWidth ?? preferences.workspacePanelWidth, viewportWidth);
   return (
     <SystemRoot appearance={appearance} density={preferences.density}>
       <div className="ofk-v2" data-testid="v2-editor" data-tool={spacePan ? 'hand' : tool}
-        style={{ backgroundColor: canvasColor }}
-        data-workspace-open={panels.workspace !== null || panels.shortcutsOpen || panels.motionOpen || chartPanelNode !== null}
+        style={{ backgroundColor: canvasColor, '--v2-panel-width': `${panelWidth}px` } as React.CSSProperties}
+        data-workspace-open={workspaceOpen}
         data-left-open={panels.treeOpen}
         onKeyDown={handleKeyDown}
         onKeyUp={(event) => { if (event.key === ' ') setSpacePan(false); }}
@@ -453,6 +458,8 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
             <V2EditorExport exportPanel={exportPanel} session={session} page={page} map={map} selectedNodeIds={selection.nodeIds}
               selectedConnectorIds={selectedConnectorIds} shared={Boolean(shared)} onExported={() => setExported(true)} onOpenAnimation={panels.openMotion}
               pushToast={pushToast} focusCanvas={focusCanvas} />
+            {workspaceOpen ? <V2PanelResizeHandle width={panelWidth} viewportWidth={viewportWidth} onResize={setDraggedPanelWidth}
+              onCommit={(workspacePanelWidth) => { setDraggedPanelWidth(null); updatePreferences({ workspacePanelWidth }); }} /> : null}
             <V2EditorSidePanels
               panels={panels} code={code} preferences={preferences} updatePreferences={updatePreferences} agents={agents} session={session}
               viewPage={viewPage ?? page} selection={selection} selectedConnectorIds={selectedConnectorIds} selectionApi={selectionApi} selectNodes={selectNodes}

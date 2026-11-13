@@ -1,3 +1,4 @@
+import { sourceText } from './helpers';
 import { expect, test } from './test';
 
 // Slice 7.5 gate: the Animation section of Export previews the exact SVG it
@@ -161,8 +162,8 @@ test('step chips write the animate block and read it back', async ({ page }) => 
   // Show code swaps in the code panel on the block the chips wrote.
   await page.getByRole('button', { name: 'Show code', exact: true }).click();
   await expect(page.getByRole('complementary', { name: 'Animation export' })).toBeHidden();
-  const code = page.getByRole('textbox', { name: 'Diagram source' });
-  await expect.poll(async () => code.inputValue()).toContain('hold 3s');
-  expect(await code.inputValue()).toContain('step client -> api');
-  expect(await code.inputValue()).toMatch(/step [^\n]*client[^\n]*-> cache/);
+  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toBeVisible();
+  await expect.poll(async () => sourceText(page)).toContain('hold 3s');
+  expect(await sourceText(page)).toContain('step client -> api');
+  expect(await sourceText(page)).toMatch(/step [^\n]*client[^\n]*-> cache/);
 });

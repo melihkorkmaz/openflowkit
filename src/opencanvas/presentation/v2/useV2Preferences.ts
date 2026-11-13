@@ -28,6 +28,15 @@ export interface V2Preferences {
   threadsUnansweredOnly: boolean;
   /** Per browser, never in the document: when each thread (`documentId:threadId`) was last read. */
   threadReads: ThreadReads;
+  /** Desktop width of the right workspace panel, in px; clamped on load and while dragging. */
+  workspacePanelWidth: number;
+}
+export const PANEL_WIDTH = { min: 360, default: 440, max: 860, maxViewportShare: 0.65 } as const;
+/** The panel's width within its limits: 360 px up to min(860 px, 65 % of the viewport). */
+export function clampPanelWidth(width: unknown, viewportWidth = Number.POSITIVE_INFINITY): number {
+  if (typeof width !== 'number' || !Number.isFinite(width)) return PANEL_WIDTH.default;
+  const max = Math.max(PANEL_WIDTH.min, Math.min(PANEL_WIDTH.max, viewportWidth * PANEL_WIDTH.maxViewportShare));
+  return Math.round(Math.min(max, Math.max(PANEL_WIDTH.min, width)));
 }
 const KEY = 'openflowkit-v2-preferences';
 /** Pairing secret: the copied MCP config carries it, so the bridge is token-gated without typing. */
@@ -40,6 +49,7 @@ const DEFAULTS: V2Preferences = {
   perspectiveTags: [],
   recentEmoji: [],
   threadsShowResolved: false, threadsUnansweredOnly: false, threadReads: {},
+  workspacePanelWidth: PANEL_WIDTH.default,
 };
 
 export function readPreferences(): V2Preferences {
@@ -68,7 +78,8 @@ export function readPreferences(): V2Preferences {
         : [],
       threadsShowResolved: value?.threadsShowResolved === true,
       threadsUnansweredOnly: value?.threadsUnansweredOnly === true,
-      threadReads: parseReads(value?.threadReads) };
+      threadReads: parseReads(value?.threadReads),
+      workspacePanelWidth: clampPanelWidth(value?.workspacePanelWidth) };
     // Saved now so every tab and reload pairs with the config copied from this one; a full store keeps it for the session.
     if (!storedToken) try { localStorage.setItem(KEY, JSON.stringify({ ...value, ...preferences })); } catch { /* session only */ }
     return preferences;

@@ -207,3 +207,8 @@ export async function connect(page: Page, fromId: string, toId: string): Promise
   await expect.poll(async () => (await state(page)).connectors.length).toBe(before + 1);
   return (await state(page)).connectors.at(-1)!;
 }
+
+/** The code panel's source text: CodeMirror draws one `.cm-line` per line (an empty source shows its placeholder); only lines near the viewport are drawn, so keep test sources short. */
+export const sourceText = (page: Page): Promise<string> =>
+  page.evaluate(() => [...document.querySelectorAll('.ofk-v2-code-editor .cm-line')]
+    .map((line) => line.querySelector('.cm-placeholder') ? '' : line.textContent ?? '').join('\n'));

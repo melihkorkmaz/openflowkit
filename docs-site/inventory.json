@@ -535,12 +535,14 @@
       "name": "Diagram as code panel",
       "status": "shipped",
       "evidence": "src/opencanvas/presentation/v2/V2CodePanel.tsx",
-      "notes": "Edit DSL, live diagnostics, ⌘↵ Generate, palette picker, canvas-edited warning; Mermaid, Structurizr or D2 pasted in offers Convert (⌘⇧M). Opens with Alt+C.",
+      "notes": "Edit DSL in a CodeMirror editor (line numbers, highlighting, Tab/Shift+Tab indent), live diagnostics, ⌘↵ Generate, ⇧⌥F Format source, palette picker, canvas-edited warning; Mermaid, Structurizr or D2 pasted in offers Convert (⌘⇧M). The panel resizes from its left edge and keeps the width. Opens with Alt+C.",
       "page": "openflow-dsl",
       "shortcuts": [
         "Diagram as code",
         "Generate the diagram (in the code panel)",
         "Convert pasted Mermaid / Structurizr / D2 (in the code panel)",
+        "Format the source (in the code panel)",
+        "Resize the panel (on its left edge)",
         "Leave the code editor (again: close it)"
       ]
     },

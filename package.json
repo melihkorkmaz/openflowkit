@@ -49,6 +49,10 @@
     "stats": "node scripts/stats.mjs"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.4",
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
     "@tabler/icons-react": "^3.47.0",
     "elkjs": "^0.11.0",
     "gifenc": "^1.0.3",

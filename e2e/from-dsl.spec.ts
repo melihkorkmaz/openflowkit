@@ -1,3 +1,4 @@
+import { sourceText } from './helpers';
 import { deflateRawSync } from 'node:zlib';
 import { expect, test, type Page } from './test';
 
@@ -20,8 +21,8 @@ test('a DSL link opens in the editor @gate', async ({ page }) => {
   await expect.poll(() => page.url(), { timeout: 20_000 }).toContain('#/d/');
   const source = page.getByRole('textbox', { name: 'Diagram source' });
   await expect(source).toBeVisible();
-  await expect(source).toHaveValue(/Cart -> Payment/);
-  await expect(source).toHaveValue(/Receipt/);
+  await expect.poll(() => sourceText(page)).toMatch(/Cart -> Payment/);
+  await expect.poll(() => sourceText(page)).toMatch(/Receipt/);
 });
 
 test('a damaged DSL link says so and offers home @gate', async ({ page }) => {

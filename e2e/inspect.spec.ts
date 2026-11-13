@@ -43,5 +43,5 @@ test('Inspect shows a node, follows its connections and opens its code @gate', a
 
   await inspect.getByRole('button', { name: 'Show in code' }).click();
   await expect(inspect).toBeHidden();
-  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toHaveValue(/Login \[rounded, blue\]/);
+  await expect(page.getByRole('textbox', { name: 'Diagram source' })).toContainText(/Login \[rounded, blue\]/);
 });

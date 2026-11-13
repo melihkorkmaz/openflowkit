@@ -1,5 +1,5 @@
 import { expect, test } from './test';
-import { openCanvas, state } from './helpers';
+import { openCanvas, sourceText, state } from './helpers';
 
 // Keyboard-only (persona P09, 2026-10-10): place, connect, leave the code editor, the ? sheet, a template's start.
 const focused = (page: import('@playwright/test').Page) =>
@@ -65,7 +65,7 @@ test('README step one: ⌥C, paste, ⌘↵ generates; the paste replaces the sam
   const source = page.getByRole('textbox', { name: 'Diagram source' });
   await expect(source).toBeFocused();
   await page.keyboard.insertText('flowchart\nWeb -> Api -> Db');
-  await expect(source).toHaveValue('flowchart\nWeb -> Api -> Db');
+  await expect.poll(() => sourceText(page)).toBe('flowchart\nWeb -> Api -> Db');
   await page.getByRole('button', { name: 'Close panel' }).focus();
   await page.keyboard.press('ControlOrMeta+Enter');
   await expect.poll(async () => (await state(page)).nodes.length).toBeGreaterThanOrEqual(3);

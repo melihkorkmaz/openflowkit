@@ -70,3 +70,10 @@ if (!hasWorkingStorage('sessionStorage')) {
     configurable: true,
   });
 }
+
+// jsdom has no layout: CodeMirror (the code panel's editor) measures text ranges, which jsdom leaves unimplemented.
+if (typeof Range !== 'undefined' && !Range.prototype.getClientRects) {
+  const empty = { length: 0, item: () => null, [Symbol.iterator]: [][Symbol.iterator] } as unknown as DOMRectList;
+  Range.prototype.getClientRects = () => empty;
+  Range.prototype.getBoundingClientRect = () => new DOMRect();
+}

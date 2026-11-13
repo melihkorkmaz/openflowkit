@@ -1,5 +1,5 @@
 // The code panel follows the page on screen, and ⌘V takes any diagram text the panel can draw.
-import { doc, openCanvas } from './helpers';
+import { doc, openCanvas, sourceText } from './helpers';
 import { expect, test, type Page } from './test';
 
 const WORKSPACE = 'architecture\nmodel {\n  person Alice\n  system Shop { container Web }\n  Alice -> Shop\n}\nviews {\n  view landscape\n}\n';
@@ -23,7 +23,7 @@ test('Generate never rewrites a page the panel was not opened on @gate', async (
   await page.getByRole('button', { name: 'Add page' }).click();
   await expect.poll(async () => (await doc(page))!.pages.length).toBe(2);
   // The new page is empty: the panel no longer shows the other page's source.
-  await expect(source).not.toHaveValue(/One -> Two/);
+  await expect.poll(() => sourceText(page)).not.toMatch(/One -> Two/);
 
   await source.fill(WORKSPACE);
   await source.press('ControlOrMeta+Enter');

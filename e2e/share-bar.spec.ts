@@ -58,7 +58,7 @@ test('an editable link carries the diagram’s code and opens as a new copy @gat
   const copy = await context.newPage();
   await copy.goto(link);
   await expect.poll(() => copy.url(), { timeout: 20_000 }).toContain('#/d/');
-  await expect(copy.getByRole('textbox', { name: 'Diagram source' })).toHaveValue(/Cart -> Payment -> Receipt/);
+  await expect(copy.getByRole('textbox', { name: 'Diagram source' })).toContainText(/Cart -> Payment -> Receipt/);
 });
 
 test('an editable link keeps the palette picked in the code panel @gate', async ({ page, context, browser }) => {

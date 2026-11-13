@@ -2,7 +2,7 @@
 // take them off at each scale a user reaches for — one node, then the diagram —
 // and check undo gives back exactly what a removal took.
 import { expect, test, type Page } from './test';
-import { centreOf, doc, openCanvas, rect, state, type V2Node } from './helpers';
+import { centreOf, doc, openCanvas, rect, sourceText, state, type V2Node } from './helpers';
 
 const META = process.platform === 'darwin' ? 'Meta' : 'Control';
 
@@ -63,13 +63,13 @@ test('a Mermaid import keeps Mermaid\'s look: no icons from its labels', async (
   const source = page.getByRole('textbox', { name: 'Diagram source' });
   await source.fill('flowchart LR\n  fe[React App] --> api[Node.js API]\n  api --> db[(Postgres)]\n  api --> ok{Valid?}');
   await page.getByRole('button', { name: /^Convert/ }).click();
-  await expect(source).not.toHaveValue(/-->/);
+  await expect.poll(() => sourceText(page)).not.toMatch(/-->/);
   await source.press(`${META}+Enter`);
   await expect.poll(async () => Object.keys(await iconsByLabel(page)), { timeout: 15_000 }).toEqual(expect.arrayContaining(['Postgres', 'Valid?']));
   expect(await iconsByLabel(page)).toMatchObject({
     'React App': undefined, 'Node.js API': undefined, Postgres: undefined, 'Valid?': undefined,
   });
-  await expect(source).toHaveValue(/icons: off/);
+  await expect.poll(() => sourceText(page)).toMatch(/icons: off/);
 });
 
 test('an AI-generated diagram gets icons once the proposal is applied', async ({ page }) => {
