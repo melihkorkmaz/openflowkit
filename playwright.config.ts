@@ -31,7 +31,8 @@ export default defineConfig({
       command: 'npm run dev -- --host 127.0.0.1 --port 4173',
       url: 'http://127.0.0.1:4173',
       // The Custom provider's same-origin AI proxy, pointed at the stub (e2e/ai-proxy.spec.ts).
-      env: { OPENFLOWKIT_AI_UPSTREAM: 'http://127.0.0.1:4399/v1' },
+      // An empty API URL keeps the suite on local IndexedDB even when .env configures the document server.
+      env: { OPENFLOWKIT_AI_UPSTREAM: 'http://127.0.0.1:4399/v1', VITE_OPENFLOWKIT_API_URL: '' },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

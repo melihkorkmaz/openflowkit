@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { defineConfig, type ProxyOptions } from 'vite';
+import { defineConfig, loadEnv, type ProxyOptions } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // The `/*` block of public/_headers (what Cloudflare sends): dev and preview send it too, so every e2e
@@ -30,16 +30,33 @@ const aiProxy: Record<string, ProxyOptions> = aiUpstream ? {
   },
 } : {};
 
-export default defineConfig(() => {
+/** Clerk's Frontend API origin, encoded in its publishable key: `pk_(test|live)_` + base64(`host$`). */
+export function clerkOrigin(publishableKey: string | undefined): string | null {
+  const encoded = /^pk_(?:test|live)_([A-Za-z0-9+/=]+)$/.exec(publishableKey ?? '')?.[1];
+  const host = encoded ? Buffer.from(encoded, 'base64').toString('utf8').replace(/\$$/, '') : '';
+  return /^[a-z0-9.-]+$/i.test(host) ? `https://${host}` : null;
+}
+
+export default defineConfig(({ mode }) => {
+  // The account sign-in loads Clerk's script and frame from its Frontend API: dev allows exactly that origin.
+  const clerk = clerkOrigin(loadEnv(mode, __dirname, 'NEXT_PUBLIC_').NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  const headers = clerk ? {
+    ...deployedHeaders,
+    'Content-Security-Policy': deployedHeaders['Content-Security-Policy']!
+      .replace('script-src ', `script-src ${clerk} `).replace('frame-src ', `frame-src ${clerk} `),
+  } : deployedHeaders;
   return {
+    // NEXT_PUBLIC_: the Clerk publishable key keeps the name Clerk's docs give it. Never a secret: CLERK_SECRET_KEY stays server-side.
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     define: { 'import.meta.env.VITE_APP_VERSION': JSON.stringify(version) },
     server: {
       port: 3000,
       host: '0.0.0.0',
-      headers: deployedHeaders,
-      proxy: aiProxy,
+      headers,
+      // The document API (`npm run api:dev`), same-origin as in the Docker image's nginx.
+      proxy: { ...aiProxy, '/api/': 'http://127.0.0.1:8787' },
     },
-    preview: { headers: deployedHeaders, proxy: aiProxy },
+    preview: { headers, proxy: { ...aiProxy, '/api/': 'http://127.0.0.1:8787' } },
     plugins: [react()],
     // Workers are not in the dev server's startup scan: their deps (gifenc, mediabunny) were found on the
     // first encode, and Vite reloaded every open page mid-session (CI's motion-dialog flake).

@@ -32,6 +32,8 @@
     "e2e:headed": "playwright test --headed",
     "e2e:ci": "CI=1 playwright test --project=chromium --grep-invert @local",
     "preview": "vite preview",
+    "api:dev": "OPENFLOWKIT_DB_PATH=.data/openflowkit.db tsx --env-file-if-exists=.env api/main.ts",
+    "build:api": "vite build -c vite.api.config.ts",
     "test": "vitest",
     "lint": "eslint . --ext ts,tsx --ignore-pattern 'docs-site/**' --report-unused-disable-directives --max-warnings 0",
     "build:docs": "npm run build --workspace docs-site",
@@ -49,6 +51,7 @@
     "stats": "node scripts/stats.mjs"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.12",
     "@codemirror/autocomplete": "^6.20.4",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/state": "^6.7.6",

@@ -1,0 +1,63 @@
+/* The public read-only page: the drawing, its name and its pages. No editor chrome. */
+.ofk-public {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px clamp(16px, 4vw, 48px);
+  background: var(--ofk-canvas);
+  color: var(--ofk-text);
+}
+
+.ofk-public-head h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ofk-public-head p {
+  margin: 4px 0 0;
+}
+
+.ofk-public-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ofk-public-pages button {
+  border: 1px solid var(--ofk-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  background: var(--ofk-surface);
+  color: var(--ofk-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ofk-public-pages button[aria-current='page'] {
+  color: var(--ofk-text);
+  border-color: var(--ofk-accent);
+}
+
+.ofk-public-pages button:focus-visible {
+  outline: var(--ofk-focus-width) solid var(--ofk-focus);
+  outline-offset: 2px;
+}
+
+.ofk-public-canvas {
+  flex: 1;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+}
+
+.ofk-public-canvas img {
+  max-width: 100%;
+  height: auto;
+}
+
+.ofk-public-foot a {
+  color: inherit;
+}

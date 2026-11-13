@@ -1,11 +1,12 @@
 import type { RefObject } from 'react';
 import {
-  IconArrowUpRight, IconBook2, IconBrandGithub, IconBulb, IconDownload, IconHierarchy2, IconLock, IconMoon, IconSearch,
+  IconArrowUpRight, IconBook2, IconBrandGithub, IconBulb, IconCloud, IconDownload, IconHierarchy2, IconLock, IconLogout, IconMoon, IconSearch,
   IconSparkles, IconSpeakerphone, IconStarFilled, IconSun,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Icon, IconButton, Tooltip } from '../design-system';
 import type { V2DocumentSummary } from '../../../services/storage/v2/v2Repository';
+import { serverStorage, signOutOfServer } from '../../../services/storage/v2/serverStorage';
 import { ISSUE_URL } from '../../application/ai/assistantReport';
 import { DOCS_URL, REPO_URL, formatStars, useGitHubStars } from './homeStars';
 import type { HomeView } from './homeLibrary';
@@ -82,10 +83,20 @@ export function V2HomeSidebar({
       ) : null}
 
       <div className="ofk-home-sidebar-foot">
-        <div className="ofk-home-local">
-          <span className="ofk-home-local-icon"><Icon icon={IconLock} /></span>
-          <p><strong>Private by default</strong>Saved in this browser. No account needed.</p>
-        </div>
+        {serverStorage ? <>
+          <div className="ofk-home-local">
+            <span className="ofk-home-local-icon"><Icon icon={IconCloud} /></span>
+            <p><strong>Saved to your account</strong>On this site’s server. Only you can edit.</p>
+          </div>
+          <button type="button" className="ofk-home-nav-item" onClick={() => { void signOutOfServer(); }}>
+            <Icon icon={IconLogout} /><span>Sign out</span>
+          </button>
+        </> : (
+          <div className="ofk-home-local">
+            <span className="ofk-home-local-icon"><Icon icon={IconLock} /></span>
+            <p><strong>Private by default</strong>Saved in this browser. No account needed.</p>
+          </div>
+        )}
         <button type="button" className="ofk-home-nav-item" onClick={onDownloadAll}>
           <Icon icon={IconDownload} /><span>Download all diagrams</span>
         </button>

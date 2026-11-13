@@ -4,7 +4,7 @@ import { Button, ErrorState, Progress } from '../design-system';
 import { capUnits, discoverArchitecture, discoveryToDsl } from '../../../dsl/discovery/discovery';
 import { fetchRepoFiles, githubEvidenceLink, parseRepoPath, RepoError, type RepoRef } from '../../../services/discovery/githubRepo';
 import { repoMapDocumentId } from '../../application/map/repoMapSource';
-import { createV2Repository } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import { track } from '../../../services/usage/usage';
 import type { V2StartIntent } from './v2Document';
 import { BrandLoader } from './BrandLoader';
@@ -31,7 +31,7 @@ export const fromGithubDocumentId = (repo: RepoRef): string =>
  */
 async function stored(id: string): Promise<boolean> {
   try {
-    const repository = createV2Repository(indexedDB);
+    const repository = openV2Repository();
     const found = await repository.loadDocument(id);
     if (found.status === 'missing') return false;
     if ('record' in found && found.record.archivedAt) await repository.restoreDocuments([id]);

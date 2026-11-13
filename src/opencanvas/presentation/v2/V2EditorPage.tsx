@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { replaceSelection } from '../../application/selection/selection';
 import { useDocumentSession } from '../../application/session/useDocumentSession';
 import type { PixiRendererHost, PixiRendererStatus } from '../../infrastructure/pixi/PixiRendererHost';
-import { createV2Repository } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import type { LandingDirection } from '../../domain/camera/readableLanding';
 import { archFrameOf, placedElementId } from '../../../dsl/model/model';
 import type { SceneDocumentV1 } from '../../domain/document/types';
@@ -91,10 +91,7 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
   const appearance = useV2Appearance(preferences.theme);
   const canvasDefaultColor = appearance === 'dark' ? '#191b19' : '#f7f7f5';
   const canvasColor = preferences.canvasColor ?? canvasDefaultColor;
-  const repository = useMemo(
-    () => createV2Repository(typeof window === 'undefined' ? null : window.indexedDB),
-    []
-  );
+  const repository = useMemo(openV2Repository, []);
   const hostRef = useRef<PixiRendererHost | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const pasteRef = useRef<(event: ClipboardEvent) => void>(() => undefined);

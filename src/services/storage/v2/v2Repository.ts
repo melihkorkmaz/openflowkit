@@ -95,11 +95,11 @@ export interface V2DocumentSummary {
   readonly archivedAt?: string;
 }
 
-type OpenedRecord =
+export type OpenedV2Record =
   | Extract<LoadV2DocumentResult, { status: 'ok' | 'read-only' }>
   | { readonly status: 'invalid'; readonly issues: readonly DocumentValidationIssue[] };
 
-function isV2DocumentRecord(value: unknown): value is V2DocumentRecord {
+export function isV2DocumentRecord(value: unknown): value is V2DocumentRecord {
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
   return (
@@ -112,7 +112,8 @@ function isV2DocumentRecord(value: unknown): value is V2DocumentRecord {
   );
 }
 
-function openRecord(value: unknown): OpenedRecord {
+/** A stored record as it opens: migrated, read-only (a newer app wrote it), or invalid. */
+export function openRecord(value: unknown): OpenedV2Record {
   if (!isV2DocumentRecord(value)) {
     return {
       status: 'invalid',
@@ -170,6 +171,21 @@ async function openV2Database(factory: IDBFactory | null): Promise<IDBDatabase> 
   }
 }
 
+/** The first reason `document` would not open again, or null. Never store what would load as damaged. */
+export function storableV2DocumentIssue(document: unknown): DocumentValidationIssue | null {
+  // Checked in place, not through migrateSceneDocument: its copy is most of a save's cost on a large diagram.
+  const valid = isJsonObject(document)
+    ? validateSceneDocumentV1(document)
+    : { success: false as const, issues: [{ path: '$', message: 'Document must contain JSON values only.' }] };
+  return valid.success === false ? valid.issues[0]! : null;
+}
+
+/** Refuses a save while the editor still holds the document. */
+export function assertStorableV2Document(document: SceneDocumentV1): void {
+  const issue = storableV2DocumentIssue(document);
+  if (issue) throw new V2DocumentInvalidError(issue);
+}
+
 async function saveRecord(
   database: IDBDatabase,
   id: string,
@@ -178,12 +194,7 @@ async function saveRecord(
   expectedRevision: number,
   savedAt = new Date().toISOString()
 ): Promise<SaveV2DocumentResult> {
-  // Never store what would load as damaged: refuse it while the editor still holds the document.
-  // Checked in place, not through migrateSceneDocument: its copy is most of a save's cost on a large diagram.
-  const valid = isJsonObject(document)
-    ? validateSceneDocumentV1(document)
-    : { success: false as const, issues: [{ path: '$', message: 'Document must contain JSON values only.' }] };
-  if (valid.success === false) throw new V2DocumentInvalidError(valid.issues[0]!);
+  assertStorableV2Document(document);
   // The revision check and both writes share one transaction, so a second
   // tab cannot commit between the read and the write, and an abort leaves
   // neither a partial primary nor a detached last-known-good behind.
@@ -265,6 +276,19 @@ function searchText(document: SceneDocumentV1): string {
     .filter((text): text is string => typeof text === 'string' && text !== '').join('\n').toLowerCase();
 }
 
+/** A stored record as the home list shows it. */
+export function summarizeV2Record(record: V2DocumentRecord): V2DocumentSummary {
+  return {
+    id: record.id,
+    name: typeof record.document.name === 'string' ? record.document.name : UNTITLED_DOCUMENT_NAME,
+    savedAt: record.savedAt,
+    pageCount: Array.isArray(record.document.pages) ? record.document.pages.length : 0,
+    pageIds: Array.isArray(record.document.pages) ? record.document.pages.map((page) => page.id) : [],
+    searchText: searchText(record.document),
+    ...(typeof record.archivedAt === 'string' ? { archivedAt: record.archivedAt } : {}),
+  };
+}
+
 // ponytail: reads every whole document to list a few fields — fine for one person's diagrams;
 // a summary store written beside each save is the upgrade if lists get slow.
 async function listRecords(database: IDBDatabase, archived: boolean): Promise<V2DocumentSummary[]> {
@@ -272,15 +296,7 @@ async function listRecords(database: IDBDatabase, archived: boolean): Promise<V2
   return records
     .filter(isV2DocumentRecord)
     .filter((record) => (typeof record.archivedAt === 'string') === archived)
-    .map((record) => ({
-      id: record.id,
-      name: typeof record.document.name === 'string' ? record.document.name : UNTITLED_DOCUMENT_NAME,
-      savedAt: record.savedAt,
-      pageCount: Array.isArray(record.document.pages) ? record.document.pages.length : 0,
-      pageIds: Array.isArray(record.document.pages) ? record.document.pages.map((page) => page.id) : [],
-      searchText: searchText(record.document),
-      ...(archived ? { archivedAt: record.archivedAt } : {}),
-    }))
+    .map(summarizeV2Record)
     .sort(archived ? (a, b) => (a.archivedAt! < b.archivedAt! ? 1 : -1) : (a, b) => (a.savedAt < b.savedAt ? 1 : -1));
 }
 

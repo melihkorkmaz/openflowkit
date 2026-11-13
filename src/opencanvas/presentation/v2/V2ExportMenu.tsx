@@ -14,6 +14,7 @@ import { track } from '../../../services/usage/usage';
 import { appBaseUrl, createShareLink, browserStorage, deleteShare, forgetShare, latestShareFor, rememberShare, ShareError } from '../../../services/share/shareClient';
 import { getTurnstileToken } from '../../../services/share/turnstile';
 import { dslLink } from '../../../services/discovery/dslLink';
+import { V2PublishSection } from './V2PublishSection';
 import {
   buildV2Export, copyImageToClipboard, downloadV2Export, printV2Export,
   type V2ExportFormat, type V2ExportScope, type V2ExportTheme,
@@ -370,6 +371,7 @@ export function V2ExportMenu({
                 </Button>
               ) : null}
             </div>
+            {open ? <V2PublishSection documentId={whole.id} onToast={onToast} /> : null}
           </div>
         ) : null}
       </div>

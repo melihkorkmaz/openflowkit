@@ -22,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { SceneDocumentV1 } from '../../domain/document/types';
-import { createV2Repository } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import { importFiles, importSummary, openedNotice } from '../../../services/storage/v2/backup';
 import { track } from '../../../services/usage/usage';
 import { buildV1Backup, readV1ImportMarker } from '../../../services/storage/v2/v1Import';
@@ -170,7 +170,7 @@ export function V2DocumentBar(props: V2DocumentBarProps): React.JSX.Element {
   // A file the person picked is always tried (a renamed backup still opens); what isn't a diagram says so below.
   const openFiles = async (files: readonly File[]): Promise<void> => {
     if (!files.length) return;
-    const report = await importFiles(files, createV2Repository(window.indexedDB), () => mintV2Id('doc'));
+    const report = await importFiles(files, openV2Repository(), () => mintV2Id('doc'));
     if (report.draw) { navigate(`/d/${mintV2Id('doc')}`, { state: { source: report.draw.source, name: report.draw.name } satisfies V2StartIntent }); return; }
     if (report.count) track('created_import');
     const failed = report.problems.length > 0;
@@ -203,7 +203,7 @@ export function V2DocumentBar(props: V2DocumentBarProps): React.JSX.Element {
     const id = mintV2Id('doc');
     const now = new Date().toISOString();
     const copy = { ...props.document, id, name: copyName(props.document.name, []), createdAt: now, updatedAt: now };
-    const saved = await createV2Repository(window.indexedDB).saveDocument(id, copy, 1);
+    const saved = await openV2Repository().saveDocument(id, copy, 1);
     if (saved.status === 'saved') navigate(`/d/${id}`);
   };
 

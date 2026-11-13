@@ -7,7 +7,7 @@ import { BrandLoader } from './BrandLoader';
 import { V2StateHero } from './V2StateHero';
 import { decodeLegacyViewerParam } from '../../../services/storage/v2/legacyViewerLink';
 import { runV1Import } from '../../../services/storage/v2/v1Import';
-import { createV2Repository } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import { useV2Appearance } from './useV2Appearance';
 import { useV2Preferences } from './useV2Preferences';
 import './v2EditorPage.css';
@@ -29,7 +29,7 @@ export function LegacyFlowRedirect(): React.JSX.Element {
   useEffect(() => {
     let live = true;
     const id = legacyDocumentId(flowId);
-    const repository = createV2Repository(window.indexedDB);
+    const repository = openV2Repository();
     // v1 put a document id or one of its page ids in the URL; imported pages keep their v1 ids.
     const locate = () => repository.listDocuments().then(
       (documents) => documents.find((document) => document.id === id || (document.id.startsWith('v1-') && document.pageIds.includes(flowId)))?.id ?? null,

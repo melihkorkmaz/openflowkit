@@ -38,6 +38,14 @@ export class V2DocumentInvalidError extends V2StorageError {
   }
 }
 
+/** The document server failed or refused; the message is the person's (server storage, not this browser's). */
+export class V2ServerError extends V2StorageError {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = 'V2ServerError';
+  }
+}
+
 export function isQuotaFailure(error: unknown): boolean {
   return (
     typeof error === 'object' &&
@@ -49,6 +57,7 @@ export function isQuotaFailure(error: unknown): boolean {
 
 /** What a person reads when storage fails: the cause in their terms and what to do next. */
 export function describeStorageFailure(error: unknown): { readonly blocked: boolean; readonly message: string } {
+  if (error instanceof V2ServerError) return { blocked: false, message: error.message };
   if (error instanceof V2StorageBlockedError) {
     return { blocked: false, message: 'Another OpenFlowKit tab is still open on an older version. Close other OpenFlowKit tabs, then try again.' };
   }

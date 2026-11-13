@@ -19,6 +19,11 @@ RUN --mount=type=cache,id=npm-cache,target=/root/.npm \
 
 COPY . .
 
+# Both set: the app signs in and saves to the document server (api/). Unset: local-only, as before.
+ARG VITE_OPENFLOWKIT_API_URL=""
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=""
+ENV VITE_OPENFLOWKIT_API_URL=$VITE_OPENFLOWKIT_API_URL NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
 RUN npm run build
 
 # ---------- Runtime stage ----------
@@ -26,6 +31,7 @@ FROM nginx:1.30-alpine AS runtime
 
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --chmod=0755 nginx/ai-proxy.sh /docker-entrypoint.d/40-openflowkit-ai-proxy.sh
+COPY --chmod=0755 nginx/api-proxy.sh /docker-entrypoint.d/41-openflowkit-api-proxy.sh
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 3045

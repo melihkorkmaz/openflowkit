@@ -12,7 +12,8 @@ import {
   openFlowPersistenceDatabase,
 } from '../indexedDbSchema';
 import { defaultLegacyNodeSize } from './openDocumentFile';
-import { createV2Repository, type V2DocumentRepository } from './v2Repository';
+import { type V2DocumentRepository } from './v2Repository';
+import { openV2Repository } from './serverStorage';
 
 // Phase 12.3: v1 diagrams → v2 on boot. v1 rows are only ever read (D3); the copy goes
 // through the v2 repository, and a clean marker makes every later boot a no-op.
@@ -272,7 +273,7 @@ export function runV1Import(): Promise<V1ImportReport> {
     .then(() => importV1Workspace({
       factory: getIndexedDbFactory(),
       storage: localStorage,
-      repository: createV2Repository(getIndexedDbFactory()),
+      repository: openV2Repository(),
       now: () => new Date().toISOString(),
     }))
     .catch((error: unknown) => {

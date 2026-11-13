@@ -4,7 +4,8 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import type { HomeNotice } from './V2LegacyRoutes';
 import { Button, EmptyState, ErrorState, Icon, SystemRoot, ToastRegion, withToast, type ToastItem } from '../design-system';
 import { CommandPalette } from '../design-system/CommandPalette';
-import { createV2Repository, type V2DocumentSummary, type V2Thumbnail } from '../../../services/storage/v2/v2Repository';
+import { type V2DocumentSummary, type V2Thumbnail } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import { describeStorageFailure } from '../../../services/storage/v2/v2Errors';
 import { plainImportFailure } from '../../domain/document/legacyWorkspace';
 import { readV1ImportMarker, runV1Import } from '../../../services/storage/v2/v1Import';
@@ -39,7 +40,7 @@ export function V2HomePage(): React.JSX.Element {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const view = parseView(params.get('view'));
-  const repository = useMemo(() => createV2Repository(window.indexedDB), []);
+  const repository = useMemo(openV2Repository, []);
   const [documents, setDocuments] = useState<readonly V2DocumentSummary[] | null>(null);
   const [archive, setArchive] = useState<readonly V2DocumentSummary[] | null>(null);
   const [thumbnails, setThumbnails] = useState<ReadonlyMap<string, V2Thumbnail | null>>(new Map());

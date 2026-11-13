@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom
 import { lastDocumentId, mintV2Id } from '@/opencanvas/presentation/v2/v2Document';
 import { V2ErrorBoundary } from '@/opencanvas/presentation/v2/V2ErrorBoundary';
 import { BrandLoader } from '@/opencanvas/presentation/v2/BrandLoader';
+import { serverStorage } from '@/services/storage/v2/serverStorage';
 
 const loadEditor = () => import('@/opencanvas/presentation/v2/V2EditorPage');
 const HomePage = lazy(async () => {
@@ -33,6 +34,10 @@ const SharedPage = lazy(async () => ({ default: (await import('@/opencanvas/pres
 const FromGithubPage = lazy(async () => ({ default: (await import('@/opencanvas/presentation/v2/V2FromGithubPage')).V2FromGithubPage }));
 const MapRoute = lazy(async () => ({ default: (await import('@/opencanvas/presentation/v2/map/MapRoute')).MapRoute }));
 const FromDslPage = lazy(async () => ({ default: (await import('@/opencanvas/presentation/v2/V2FromDslPage')).V2FromDslPage }));
+
+const PublicPage = lazy(async () => ({ default: (await import('@/opencanvas/presentation/v2/V2PublicPage')).V2PublicPage }));
+// Only a build with the document server signs in; the default build never downloads Clerk.
+const AuthGate = serverStorage ? lazy(async () => ({ default: (await import('@/opencanvas/presentation/v2/V2AuthGate')).V2AuthGate })) : null;
 
 const EditorPage = lazy(async () => ({ default: (await loadEditor()).V2EditorPage }));
 
@@ -71,25 +76,36 @@ function LegacyV2Redirect(): React.JSX.Element {
   return <Navigate to={`/d/${id}`} replace />;
 }
 
+/** Every screen that reads or writes the person's own documents. */
+function OwnerRoutes(): React.JSX.Element {
+  return (
+    <Routes>
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/flow/:flowId" element={<LegacyFlowRedirect />} />
+      <Route path="/view" element={<LegacyViewPage />} />
+      {LEGACY_HOME_PATHS.map((path) => <Route key={path} path={path} element={<Navigate to="/home" replace />} />)}
+      {LEGACY_DOCS_PATHS.map((path) => <Route key={path} path={path} element={<DocsSiteRedirect />} />)}
+      <Route path="/d/:id" element={<EditorRoute />} />
+      <Route path="/s/:id/:key?" element={<SharedPage />} />
+      <Route path="/from/github/*" element={<FromGithubPage />} />
+      <Route path="/map/github/*" element={<MapRoute />} />
+      <Route path="/from/dsl" element={<FromDslPage />} />
+      <Route path="/v2/:id" element={<LegacyV2Redirect />} />
+      <Route path="/connect" element={<HomeDocument then="?connect" />} />
+      <Route path="*" element={<HomeDocument />} />
+    </Routes>
+  );
+}
+
 export default function App(): React.JSX.Element {
   return (
     <HashRouter>
       <V2ErrorBoundary>
         <Suspense fallback={<BrandLoader screen label="Loading OpenFlowKit" />}>
           <Routes>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/flow/:flowId" element={<LegacyFlowRedirect />} />
-            <Route path="/view" element={<LegacyViewPage />} />
-            {LEGACY_HOME_PATHS.map((path) => <Route key={path} path={path} element={<Navigate to="/home" replace />} />)}
-            {LEGACY_DOCS_PATHS.map((path) => <Route key={path} path={path} element={<DocsSiteRedirect />} />)}
-            <Route path="/d/:id" element={<EditorRoute />} />
-            <Route path="/s/:id/:key?" element={<SharedPage />} />
-            <Route path="/from/github/*" element={<FromGithubPage />} />
-            <Route path="/map/github/*" element={<MapRoute />} />
-            <Route path="/from/dsl" element={<FromDslPage />} />
-            <Route path="/v2/:id" element={<LegacyV2Redirect />} />
-            <Route path="/connect" element={<HomeDocument then="?connect" />} />
-            <Route path="*" element={<HomeDocument />} />
+            {/* Anonymous: a published page never asks anyone to sign in. */}
+            <Route path="/p/:slug" element={<PublicPage />} />
+            <Route path="*" element={AuthGate ? <AuthGate><OwnerRoutes /></AuthGate> : <OwnerRoutes />} />
           </Routes>
         </Suspense>
       </V2ErrorBoundary>

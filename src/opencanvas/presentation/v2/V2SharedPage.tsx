@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, ErrorState } from '../design-system';
 import { loadSharedDocument, type SharedProblem } from '../../../services/share/shareClient';
-import { createV2Repository } from '../../../services/storage/v2/v2Repository';
+import { openV2Repository } from '../../../services/storage/v2/serverStorage';
 import { track } from '../../../services/usage/usage';
 import type { SceneDocumentV1 } from '../../domain/document/types';
 import { mintV2Id } from './v2Document';
@@ -32,7 +32,7 @@ export function V2SharedPage(): React.JSX.Element {
   const edit = useCallback(async () => {
     if (!document) return;
     const copy = { ...document, id: mintV2Id('doc'), updatedAt: new Date().toISOString() };
-    const saved = await createV2Repository(window.indexedDB).saveDocument(copy.id, copy, 0);
+    const saved = await openV2Repository().saveDocument(copy.id, copy, 0);
     if (saved.status !== 'saved') throw new Error('Could not save a copy of this diagram.');
     navigate(`/d/${copy.id}`);
     track('shared_copied');

@@ -912,6 +912,9 @@
 .ofk-v2-share-foot a { color: var(--ofk-muted); text-underline-offset: 3px; }
 .ofk-v2-share-foot a:hover { color: var(--ofk-text); }
 .ofk-v2-share-foot .ofk-button { min-height: 26px; padding: 0 8px; font-size: 12px; color: var(--ofk-muted); }
+.ofk-v2-publish { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--ofk-border); }
+.ofk-v2-publish .ofk-v2-share-title { display: flex; align-items: center; gap: 6px; margin: 0; }
+.ofk-v2-publish-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .ofk-v2-export-actions .ofk-button:first-child { flex: 1; justify-content: center; }
 
 /* Animation export: the preview is the exact SVG the download writes. */
