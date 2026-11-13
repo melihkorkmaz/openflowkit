@@ -7,7 +7,7 @@ import {
 } from '@codemirror/view';
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import type { DslDiagnostic } from '../../../dsl/ast';
-import { tokenize } from '../../../dsl/tokenize';
+import { highlightLine } from '../../../dsl/highlight';
 
 export interface V2SourceEditorHandle {
   focus(): void;
@@ -42,8 +42,8 @@ function tokenDecorations(view: EditorView): DecorationSet {
   for (const { from, to } of view.visibleRanges) {
     for (let position = from; position <= to;) {
       const line = view.state.doc.lineAt(position);
-      for (const token of tokenize(line.text).tokens) {
-        builder.add(line.from + token.col - 1, line.from + token.endCol - 1, Decoration.mark({ attributes: { 'data-token': token.kind } }));
+      for (const span of highlightLine(line.text)) {
+        builder.add(line.from + span.from, line.from + span.to, Decoration.mark({ attributes: { 'data-token': span.kind } }));
       }
       position = line.to + 1;
     }
@@ -89,7 +89,7 @@ function indentToTabStop(view: EditorView): boolean {
 
 const normalize = (text: string) => text.replace(/\r\n?/g, '\n');
 
-/** The diagram source on CodeMirror 6: line numbers, DSL token colours, history, bracket closing and indent keys. */
+/** The diagram source on CodeMirror 6, always dark: line numbers, IDE-style token colours, history, bracket closing and indent keys. */
 export const V2SourceEditor = forwardRef<V2SourceEditorHandle, Props>(function V2SourceEditor(props, ref) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);

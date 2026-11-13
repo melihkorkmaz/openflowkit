@@ -272,29 +272,44 @@
 .ofk-v2-panel-footer .ofk-button { width: 100%; }
 .ofk-v2-panel-footer p { font-size: 11px; text-align: center; color: var(--ofk-muted); line-height: 1.6; }
 .ofk-v2-code-editor-wrap { position: relative; flex: 1; min-height: 240px; }
-/* CodeMirror 6 surface (V2SourceEditor): the host fills the wrap and CodeMirror scrolls inside it. */
-.ofk-v2-code-editor { position: absolute; inset: 0; border: 1px solid var(--ofk-border); border-radius: 8px; overflow: hidden; background: var(--ofk-canvas); }
+/* CodeMirror 6 surface (V2SourceEditor): the host fills the wrap and CodeMirror scrolls inside it.
+   Always dark (VS Code Dark+ tones), whatever the app theme: code reads like it does in an IDE. */
+.ofk-v2-code-editor {
+  --code-bg: #1e1e1e; --code-gutter: #1e1e1e; --code-line: #2a2d2e; --code-border: #3c3c3c; --code-text: #d4d4d4; --code-muted: #858585;
+  position: absolute; inset: 0; border: 1px solid var(--code-border); border-radius: 8px; overflow: hidden; background: var(--code-bg); color-scheme: dark;
+}
 .ofk-v2-code-editor:focus-within { border-color: var(--ofk-accent); }
-.ofk-v2-code-editor .cm-editor { height: 100%; color: var(--ofk-secondary); background: transparent; font: 14px/1.9 var(--ofk-font-mono, monospace); }
+.ofk-v2-code-editor .cm-editor { height: 100%; color: var(--code-text); background: transparent; font: 14px/1.9 var(--ofk-font-mono, monospace); }
 .ofk-v2-code-editor .cm-editor.cm-focused { outline: none; }
 .ofk-v2-code-editor .cm-scroller { font: inherit; line-height: inherit; overflow: auto; scrollbar-gutter: stable; }
-.ofk-v2-code-editor .cm-content { padding: 12px 0; caret-color: var(--ofk-text); }
+.ofk-v2-code-editor .cm-content { padding: 12px 0; caret-color: #aeafad; }
 .ofk-v2-code-editor .cm-content:focus-visible { outline: none; }
 .ofk-v2-code-editor .cm-line { padding: 0 12px 0 8px; }
-.ofk-v2-code-editor .cm-cursor { border-left-color: var(--ofk-text); }
-.ofk-v2-code-editor .cm-selectionBackground, .ofk-v2-code-editor .cm-focused .cm-selectionBackground { background: color-mix(in srgb, var(--ofk-accent) 28%, transparent) !important; }
-.ofk-v2-code-editor .cm-activeLine { background: color-mix(in srgb, var(--ofk-raised) 60%, transparent); }
-.ofk-v2-code-editor .cm-gutters { border-right: 1px solid var(--ofk-border); background: var(--ofk-surface); color: var(--ofk-muted); font-size: 12px; }
-.ofk-v2-code-editor .cm-activeLineGutter { background: var(--ofk-raised); color: var(--ofk-text); }
-.ofk-v2-code-editor .cm-placeholder { color: var(--ofk-muted); }
-.ofk-v2-code-editor [data-token='arrow'], .ofk-v2-code-editor [data-token='punctuation'] { color: var(--ofk-accent); }
-.ofk-v2-code-editor [data-token='string'] { color: var(--ofk-success); }
-.ofk-v2-code-editor [data-token='comment'] { color: var(--ofk-muted); font-style: italic; }
-.ofk-v2-code-editor .cm-line[data-tone='error'] { background: color-mix(in srgb, var(--ofk-danger, #d33) 10%, transparent); box-shadow: inset 2px 0 var(--ofk-danger, #d33); }
-.ofk-v2-code-editor .cm-line[data-tone='warning'] { background: var(--ofk-warningSoft); box-shadow: inset 2px 0 var(--ofk-warning); }
-.ofk-v2-code-suggestions { position: absolute; z-index: var(--ofk-layer-menu); left: 12px; bottom: 12px; display: flex; flex-direction: column; width: min(220px, calc(100% - 24px)); max-height: 220px; overflow: auto; padding: 4px; border: 1px solid var(--ofk-border); border-radius: 8px; background: var(--ofk-surface); box-shadow: var(--ofk-shadow-floating); }
-.ofk-v2-code-suggestions > button { min-height: 30px; padding: 0 8px; border: 0; border-radius: 5px; background: transparent; color: var(--ofk-text); font: 12px var(--ofk-font-mono, monospace); text-align: left; }
-.ofk-v2-code-suggestions > button[aria-selected='true'], .ofk-v2-code-suggestions > button:hover { background: var(--ofk-raised); }
+.ofk-v2-code-editor .cm-cursor { border-left: 2px solid #aeafad; }
+.ofk-v2-code-editor .cm-selectionBackground, .ofk-v2-code-editor .cm-focused .cm-selectionBackground { background: #264f78 !important; }
+.ofk-v2-code-editor .cm-activeLine { background: var(--code-line); }
+.ofk-v2-code-editor .cm-gutters { border-right: 1px solid var(--code-border); background: var(--code-gutter); color: var(--code-muted); font-size: 12px; }
+.ofk-v2-code-editor .cm-activeLineGutter { background: var(--code-line); color: #c6c6c6; }
+.ofk-v2-code-editor .cm-placeholder { color: #6a6a6a; }
+/* Token roles from src/dsl/highlight.ts. */
+.ofk-v2-code-editor [data-token='keyword'] { color: #c586c0; }
+.ofk-v2-code-editor [data-token='name'] { color: #9cdcfe; }
+.ofk-v2-code-editor [data-token='id'] { color: #4fc1ff; }
+.ofk-v2-code-editor [data-token='key'] { color: #4ec9b0; }
+.ofk-v2-code-editor [data-token='value'] { color: #dcdcaa; }
+.ofk-v2-code-editor [data-token='number'], .ofk-v2-code-editor [data-token='color'] { color: #b5cea8; }
+.ofk-v2-code-editor [data-token='label'], .ofk-v2-code-editor [data-token='string'] { color: #ce9178; }
+.ofk-v2-code-editor [data-token='arrow'] { color: #569cd6; font-weight: 600; }
+.ofk-v2-code-editor [data-token='bracket'] { color: #ffd700; }
+.ofk-v2-code-editor [data-token='brace'] { color: #da70d6; }
+.ofk-v2-code-editor [data-token='punctuation'] { color: #808080; }
+.ofk-v2-code-editor [data-token='comment'] { color: #6a9955; font-style: italic; }
+.ofk-v2-code-editor [data-token='meta'] { color: #808080; font-style: italic; }
+.ofk-v2-code-editor .cm-line[data-tone='error'] { background: rgb(244 71 71 / 14%); box-shadow: inset 2px 0 #f44747; }
+.ofk-v2-code-editor .cm-line[data-tone='warning'] { background: rgb(204 167 0 / 14%); box-shadow: inset 2px 0 #cca700; }
+.ofk-v2-code-suggestions { position: absolute; z-index: var(--ofk-layer-menu); left: 12px; bottom: 12px; display: flex; flex-direction: column; width: min(220px, calc(100% - 24px)); max-height: 220px; overflow: auto; padding: 4px; border: 1px solid #454545; border-radius: 8px; background: #252526; color-scheme: dark; box-shadow: var(--ofk-shadow-floating); }
+.ofk-v2-code-suggestions > button { min-height: 30px; padding: 0 8px; border: 0; border-radius: 5px; background: transparent; color: #cccccc; font: 12px var(--ofk-font-mono, monospace); text-align: left; }
+.ofk-v2-code-suggestions > button[aria-selected='true'], .ofk-v2-code-suggestions > button:hover { background: #04395e; }
 .ofk-v2-code-panel .ofk-panel-body { overflow: hidden; }
 .ofk-v2-code-panel .ofk-v2-panel-stack { gap: 10px; height: 100%; }
 .ofk-code-caption { display: flex; align-items: center; gap: 8px; color: var(--ofk-muted); font-size: 11px; }
