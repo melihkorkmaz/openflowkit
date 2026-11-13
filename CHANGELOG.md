@@ -9,6 +9,8 @@ separately; its changes are listed under *For developers* in each release.
 
 ## [Unreleased]
 
+- Upgrade Clerk to `@clerk/react` 6 and open sign-in in a modal that preserves diagram URLs.
+
 - Search and preview icons while writing an `icon:` attribute in the code editor; select with Enter, Tab or a click.
 
 ## [2.2.0] — 2026-11-07

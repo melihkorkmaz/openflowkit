@@ -25,7 +25,7 @@ smoke the MCP Worker, push `mcp-vX.Y.Z` (registry), then the app tag `vX.Y.Z` (i
   agent op registry for MCP, CLI, WebMCP, the in-app assistant, PR Action, Claude Code / Codex plugins.
 - Comment threads: pins on the canvas, the Threads panel, agent tools; a `.openflow.json` keeps them, exports and
   share links leave them out unless **Include comments**.
-- Code editor icon search with previews, keyboard/click selection and one-step undo — Codex, 2026-11-13.
+- Code editor icon previews and search; Clerk React 6 with modal sign-in — Codex, 2026-11-13.
 
 ## Known ceilings (`// ponytail:` in code)
 - Whole SVG re-emitted per export; GIF 256 colours ≤ 20 fps; headless layout 1000 shapes / 400 connections.
