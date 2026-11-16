@@ -189,6 +189,7 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
     onBlockedEdit: () => explainMapRef.current(),
     ...(repoPage ? { onCanvas: () => openDrawingRef.current() } : {}),
     ready: rendererReady,
+    ...(shared && !shared.onEdit ? { opensInByDefault: 'map' as const } : {}),
     panelsKey: [panels.workspace, panels.shortcutsOpen, panels.chartId, panels.treeOpen, panels.motionOpen].join(),
     selectedIds: () => selectionRef.current.nodeIds,
     glide: camera.animateTo,

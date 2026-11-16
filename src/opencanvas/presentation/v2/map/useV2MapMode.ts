@@ -76,6 +76,8 @@ interface Options {
   readonly onCanvas?: () => boolean;
   /** The renderer is mounted: the map lands its camera only then (a slow start lays the map out first). */
   readonly ready?: boolean;
+  /** A model page with no saved choice opens in this mode (a published page's reader starts in Map). */
+  readonly opensInByDefault?: V2MapModeName;
 }
 
 const NONE: ReadonlySet<string> = new Set();
@@ -100,19 +102,19 @@ function useStable<T>(value: T): T {
  * written; the scene is a ScenePage handed to the canvas in place of the page.
  */
 export function useV2MapMode(options: Options) {
-  const { page, documentId, repo = null, startable = false, palette, autoIcons, hostRef, cameraRef, updateCamera, fitView, onToolChange, primaryId, select, clearSelection, selectedNodeId, selectedConnectorId, cancelTransient, closeChart, notify, onPin, panelsKey = '', selectedIds = () => [], glide = updateCamera, onBlockedEdit, onCanvas, ready = true } = options;
+  const { page, documentId, repo = null, startable = false, palette, autoIcons, hostRef, cameraRef, updateCamera, fitView, onToolChange, primaryId, select, clearSelection, selectedNodeId, selectedConnectorId, cancelTransient, closeChart, notify, onPin, panelsKey = '', selectedIds = () => [], glide = updateCamera, onBlockedEdit, onCanvas, ready = true, opensInByDefault = 'canvas' } = options;
   // Cheap: only whether the page carries a model. The model itself is read only while the map is on.
   const isRepo = repo !== null;
   const hasModel = useMemo(() => isRepo || (page ? archFrameOf(page) !== null : false), [isRepo, page]);
   const available = hasModel || startable;
   const [mode, setModeState] = useState<V2MapModeName>('canvas');
-  // Once per document: the reader's last choice (this browser), else a model page opens in Canvas. A repo page is always
+  // Once per document: the reader's last choice (this browser), else opensInByDefault (Canvas). A repo page is always
   // Map: its Canvas is its drawing, another page.
   const [restored, setRestored] = useState<string | null>(null);
-  const opensIn = (id: string): V2MapModeName => (isRepo ? 'map' : savedMode(id) ?? 'canvas');
+  const opensIn = (id: string): V2MapModeName => (isRepo ? 'map' : savedMode(id) ?? opensInByDefault);
   // Each time the map becomes available again (back on the repo page from a pinned one) the choice applies again.
   if (!hasModel && restored !== null) setRestored(null);
-  // Another document (Open file…, a link) never inherits the last one's mode: its own saved choice, else Canvas.
+  // Another document (Open file…, a link) never inherits the last one's mode: its own saved choice, else the default.
   const [seenDocument, setSeenDocument] = useState(documentId);
   if (documentId !== seenDocument) {
     setSeenDocument(documentId);
