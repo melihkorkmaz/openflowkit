@@ -66,6 +66,8 @@ interface SidePanelsProps {
   readonly threads: ReturnType<typeof useV2Threads>;
   /** Diagram as code on the rail (codeToggle). */
   readonly toggleCode: () => void;
+  /** A published page's reader gets no rail and no shortcuts button: the page is for looking, not working. */
+  readonly publicView?: boolean;
   /** Rendered between the rail and the panels, so the editor's tab order stays rail, welcome, panels. */
   readonly children?: ReactNode;
 }
@@ -81,13 +83,13 @@ export function V2EditorSidePanels(p: SidePanelsProps): React.JSX.Element {
   useEffect(() => { void loadCodePanel(); }, []);
   return (
     <>
-      <V2WorkspaceRail mode={panels.workspace} onShortcuts={panels.toggleShortcuts} agentConnected={agentBridge.status === 'connected'}
+      {p.publicView ? null : <V2WorkspaceRail mode={panels.workspace} onShortcuts={panels.toggleShortcuts} agentConnected={agentBridge.status === 'connected'}
         openThreads={p.threads.openCount}
         onChange={(mode) => {
           if (mode === 'code') p.toggleCode();
           else if (mode === 'threads') p.threads.toggleFromRail();
           else panels.toggleWorkspace(mode);
-        }} />
+        }} />}
       {p.children}
       {panels.workspace === 'code' ? <Suspense fallback={null}><V2CodePanel code={code.draft} palette={preferences.diagramPalette} autoFocus={code.panelFocus} selectAll={code.panelSelect}
         onPaletteChange={(diagramPalette) => updatePreferences({ diagramPalette })}

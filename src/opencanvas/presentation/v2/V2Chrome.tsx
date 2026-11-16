@@ -71,6 +71,7 @@ interface V2ChromeProps extends V2SettingsProps {
   readonly onOpenShare?: (anchor: HTMLElement | null) => void;
   readonly onDismissExport: () => void;
   readonly onEditShared?: () => Promise<void>;
+  readonly publicView?: boolean;
 }
 
 // Persistent chrome (I-31): document bar, creation toolbar, camera controls.
@@ -100,6 +101,7 @@ export function V2Chrome(props: V2ChromeProps): React.JSX.Element {
         {...(props.onOpenShare ? { onOpenShare: props.onOpenShare } : {})}
         onDismissExport={props.onDismissExport}
         {...(props.onEditShared ? { onEditShared: props.onEditShared } : {})}
+        {...(props.publicView ? { publicView: true } : {})}
       />
       {props.readOnly || props.canvasUnavailable || (props.mapMode?.mode === 'map' && !props.mapStart) ? null : (
         <V2CreationToolbar tool={props.tool} onToolChange={props.onToolChange}

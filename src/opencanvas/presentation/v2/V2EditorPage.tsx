@@ -467,7 +467,7 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
               repoPanel={repoPanel} repoSource={repoSource} repoLoading={repo.state.status === 'loading'} mapArrow={mapArrow} renameRequest={renameRequest}
               selectedElementId={selectedElementId} placedElementIds={placedElementIds} canvasElementIds={canvasElementIds} showOnCanvas={showOnCanvas}
               workspaceFolder={workspaceFolder} docReadOnly={docReadOnly} pushToast={pushToast} setAnnouncement={setAnnouncement} focusCanvas={focusCanvas}
-              threads={threads} toggleCode={toggleCode}>
+              threads={threads} toggleCode={toggleCode} publicView={Boolean(shared && !shared.onEdit)}>
               {/* A drawing tool armed means the next click draws: the welcome steps aside instead of catching it. */}
               {page.nodes.length === 0 && page.connectors.length === 0 && !ghostPage && !docReadOnly && rendererReady && !map.active && tool === 'select'
                 ? <V2CanvasWelcome onOpen={openWorkspace}

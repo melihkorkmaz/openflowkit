@@ -18,6 +18,8 @@ import {
   IconLoader2,
   IconLock,
   IconMessageCircle,
+  IconMoon,
+  IconSun,
   IconShare2,
 } from '@tabler/icons-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -45,6 +47,7 @@ import {
 } from '../design-system';
 import type { V2SaveStatus } from './useV2Autosave';
 import { V2PagesMenu } from './V2PagesMenu';
+import { useV2Appearance } from './useV2Appearance';
 import type { useV2Pages } from './useV2Pages';
 import { isWorkspacePickerSupported } from '../../../services/workspace/workspaceFolder';
 
@@ -67,6 +70,8 @@ interface V2DocumentBarProps extends V2SettingsProps {
   readonly onDismissExport: () => void;
   /** A shared link's viewer: saves a local, editable copy and opens it. Throws a readable error on failure. */
   readonly onEditShared?: () => Promise<void>;
+  /** A published page's reader: no canvas menu (nothing in it is theirs), a light/dark switch in its place. */
+  readonly publicView?: boolean;
   readonly workspace?: {
     readonly name: string | null;
     readonly onOpenFolder: () => void;
@@ -123,6 +128,7 @@ export function V2DocumentBar(props: V2DocumentBarProps): React.JSX.Element {
   const pagesRef = useRef<HTMLButtonElement>(null);
   const activePageName = props.pages.activePage?.name ?? 'Page 1';
   const save = saveLabel(props.saveStatus);
+  const dark = useV2Appearance(props.preferences.theme) === 'dark';
   // Beside the switch, never before it: the switch must not move when the path changes. Canvas walks pages; Map shows the selected box's path.
   const inMap = props.mapMode?.mode === 'map';
   const crumbs: { key: string; label: string; open?: () => void }[] = inMap
@@ -219,12 +225,20 @@ export function V2DocumentBar(props: V2DocumentBarProps): React.JSX.Element {
     <>
       <FloatingRegion slot="top-start">
         <Toolbar label="Document" className="ofk-v2-document-bar">
-          <Tooltip content="Canvas menu">
-            <IconButton ref={settingsRef} variant="quiet" label="Canvas menu"
-              icon={<Icon icon={IconMenu2} />}
-              aria-expanded={panel === 'menu'} aria-haspopup="menu"
-              onClick={() => togglePanel('menu')} />
-          </Tooltip>
+          {props.publicView ? (
+            <Tooltip content={dark ? 'Light theme' : 'Dark theme'}>
+              <IconButton ref={settingsRef} variant="quiet" label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+                icon={<Icon icon={dark ? IconSun : IconMoon} />}
+                onClick={() => props.onPreferencesChange({ theme: dark ? 'light' : 'dark' })} />
+            </Tooltip>
+          ) : (
+            <Tooltip content="Canvas menu">
+              <IconButton ref={settingsRef} variant="quiet" label="Canvas menu"
+                icon={<Icon icon={IconMenu2} />}
+                aria-expanded={panel === 'menu'} aria-haspopup="menu"
+                onClick={() => togglePanel('menu')} />
+            </Tooltip>
+          )}
           {editingTitle ? (
             <input ref={titleRef} className="ofk-v2-document-title-input" value={titleDraft}
               aria-label="Diagram title" maxLength={120}

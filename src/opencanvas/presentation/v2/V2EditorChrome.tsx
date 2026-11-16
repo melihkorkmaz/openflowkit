@@ -96,6 +96,7 @@ export function V2EditorChrome(p: EditorChromeProps): React.JSX.Element {
       {...(map.active ? { mapPath: map.path, onMapPath: map.reveal } : {})}
       onCrumb={(crumb) => p.architectureActions.openCrumb(crumb)}
       {...(shared?.onEdit ? { onEditShared: shared.onEdit } : {})}
+      {...(shared && !shared.onEdit ? { publicView: true } : {})}
       onOpenExport={(anchor) => exportPanel.openExport(anchor, 'page')}
       {...(shared ? {} : { onOpenShare: (anchor: HTMLElement | null) => exportPanel.openExport(anchor, 'page', 'menu-share') })}
       onDismissExport={() => exportPanel.setExportOpen(false)}
