@@ -103,3 +103,29 @@ test('Show on canvas from Map selects the element on its page @gate', async ({ p
     return (await doc(page))!.pages.flatMap((p) => p.nodes).find((n) => n.id === id)?.content?.label;
   }).toBe('API');
 });
+
+test('documentation saves off the drawing, and its node badge opens it @gate', async ({ page }) => {
+  test.setTimeout(60_000);
+  const panel = await openC4(page);
+  await panel.getByRole('treeitem', { name: /^Customer/ }).click();
+  const field = panel.getByRole('textbox', { name: 'Documentation' });
+  await field.fill('## Onboarding\nSigns up with **email**.');
+  await field.blur();
+  await expect(panel.getByRole('region', { name: 'Documentation' }).getByText('Onboarding')).toBeVisible();
+  await expect.poll(async () => JSON.stringify((await doc(page))!.pages[0]!.nodes.map((n) => n.content))).not.toContain('Onboarding');
+
+  const badge = page.getByRole('button', { name: 'Documentation for Customer' });
+  await expect(badge).toBeVisible();
+  await panel.getByRole('button', { name: 'All elements', exact: true }).click();
+  await expect(panel.getByRole('tree', { name: 'Model elements' })).toBeVisible();
+  await badge.click();
+  await expect(panel.getByLabel('Name', { exact: true })).toHaveValue('Customer');
+  await expect(panel.getByRole('button', { name: 'Edit', exact: true })).toBeFocused();
+
+  // Edit, then Undo takes the documentation away again in one step, and the badge with it.
+  await panel.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(field).toHaveValue('## Onboarding\nSigns up with **email**.');
+  await field.blur();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(badge).toHaveCount(0);
+});

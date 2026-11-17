@@ -23,7 +23,7 @@ import {
   type IconResolver,
 } from './iconCommands';
 
-export type ArchElementPatch = Partial<Pick<ArchElement, 'name' | 'tech' | 'desc' | 'tags' | 'links' | 'color' | 'icon'>>;
+export type ArchElementPatch = Partial<Pick<ArchElement, 'name' | 'tech' | 'desc' | 'doc' | 'tags' | 'links' | 'color' | 'icon'>>;
 
 export interface ModelPage {
   readonly page: ScenePage;

@@ -96,7 +96,7 @@ export function canonicalAttributesWithTags(
 }
 
 /** Attributes with a typed home on `ArchElement`; the rest stay in `attrs`. */
-export const TYPED_ELEMENT_KEYS = new Set(['tech', 'desc', 'link', 'icon', 'color']);
+export const TYPED_ELEMENT_KEYS = new Set(['tech', 'desc', 'doc', 'link', 'icon', 'color']);
 export const TYPED_RELATION_KEYS = new Set(['label', 'tech', 'link']);
 
 export function splitAttributes(

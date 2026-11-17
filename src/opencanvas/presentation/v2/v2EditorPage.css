@@ -1470,6 +1470,13 @@
 .ofk-v2-card-field input:focus-visible, .ofk-v2-card-field textarea:focus-visible { outline: 2px solid var(--ofk-focus); outline-offset: 0; background: var(--ofk-surface); }
 .ofk-v2-card-field input::placeholder, .ofk-v2-card-field textarea::placeholder { color: var(--ofk-muted); }
 .ofk-v2-card-links { padding-inline-start: 94px; }
+.ofk-v2-card-doc .ofk-v2-md { font-size: 13px; line-height: 1.5; }
+.ofk-v2-card-doc-edit { display: inline-flex; align-items: center; gap: 4px; padding: 0 6px; font: inherit; font-size: 11px; letter-spacing: normal; text-transform: none; font-weight: 500; color: var(--ofk-muted); background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.ofk-v2-card-doc-edit:hover { color: var(--ofk-text); background: var(--ofk-raised); }
+.ofk-v2-card-doc-edit:focus-visible { outline: 2px solid var(--ofk-focus); }
+.ofk-v2-card-doc-text { width: 100%; box-sizing: border-box; margin: 0; padding: 6px 8px; font: inherit; font-size: 13px; line-height: 1.5; color: var(--ofk-text); background: transparent; border: 1px solid var(--ofk-border); border-radius: 6px; resize: vertical; field-sizing: content; min-height: 84px; max-height: 420px; }
+.ofk-v2-card-doc-text:focus-visible { outline: 2px solid var(--ofk-focus); outline-offset: 0; background: var(--ofk-surface); }
+.ofk-v2-card-doc-text::placeholder { color: var(--ofk-muted); }
 .ofk-v2-card-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .ofk-v2-card-list > li { display: flex; gap: 8px; align-items: baseline; min-width: 0; font-size: 13px; }
 .ofk-v2-card-arrow { flex: none; width: 14px; color: var(--ofk-muted); }
@@ -1511,6 +1518,16 @@
    (the card is placed clear of panels and toolbars, which the bar, floating over the selection, is not). */
 .ofk-comment-layer:has([data-comment-open]) { z-index: var(--ofk-layer-context, 35); }
 .ofk-comment-anchor { position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none; }
+/* A documented element's badge, centred on its top-right corner (clear of the card's text); under the comment pins. */
+.ofk-doc-layer { z-index: calc(var(--ofk-layer-toolbar, 10) - 2); }
+.ofk-doc-badge {
+  position: absolute; left: -10px; top: -10px; display: grid; place-items: center; box-sizing: border-box; width: 20px; height: 20px; padding: 0;
+  border: 0; border-radius: 5px; color: var(--ofk-muted); background: var(--ofk-surface); cursor: pointer; pointer-events: auto;
+  box-shadow: 0 0 0 1px var(--ofk-border);
+}
+.ofk-doc-badge svg { width: 14px; height: 14px; }
+.ofk-doc-badge:hover { color: var(--ofk-accent); }
+.ofk-doc-badge:focus-visible { outline: 2px solid var(--ofk-focus); outline-offset: 1px; }
 .ofk-comment-anchor:has([data-comment-open]) { z-index: 1; }
 .ofk-comment-pin {
   position: absolute; left: 0; bottom: 0; box-sizing: border-box; width: 30px; height: 30px; padding: 0; border: 2px solid var(--ofk-surface);

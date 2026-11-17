@@ -20,6 +20,8 @@ export interface V2ModelPanelProps {
   readonly selectedElementId: string | null;
   /** "Edit in model" (a Map double-click, the context menu): open this element's card with its name ready to type. A new object each time. */
   readonly renameRequest?: { readonly id: string } | null;
+  /** A node's documentation badge: open this element's card with its Documentation in view. A new object each time. */
+  readonly docRequest?: { readonly id: string } | null;
   readonly placedElementIds: ReadonlySet<string>;
   readonly perspectiveTags: readonly string[];
   readonly onPerspectiveChange: (tags: readonly string[]) => void;
@@ -110,6 +112,11 @@ export function V2ModelPanel(props: V2ModelPanelProps): React.JSX.Element {
   if (lastRename !== props.renameRequest) {
     setLastRename(props.renameRequest);
     if (props.renameRequest) { setTab('elements'); setInspection(null); setJustAdded(props.renameRequest.id); }
+  }
+  const [lastDoc, setLastDoc] = useState<V2ModelPanelProps['docRequest']>(null);
+  if (lastDoc !== props.docRequest) {
+    setLastDoc(props.docRequest);
+    if (props.docRequest) { setTab('elements'); setInspection(null); setJustAdded(null); }
   }
   // Where you were in the outline: marked and refocused when you come back.
   const [lastId, setLastId] = useState<string | null>(null);
@@ -233,6 +240,7 @@ export function V2ModelPanel(props: V2ModelPanelProps): React.JSX.Element {
             childView={architecture.childViewOf(selected.id)}
             adrs={props.adrs ?? []}
             focusName={justAdded === selected.id && (props.renameRequest?.id === selected.id ? props.renameRequest : true)}
+            focusDoc={props.docRequest?.id === selected.id ? props.docRequest : false}
             focusBack={inspection?.fromOutline === true && inspection.id === selected.id}
             mapAction={props.onShowOnCanvas && props.canvasElementIds?.has(selected.id)
               ? { label: 'Show on canvas', run: () => props.onShowOnCanvas!(selected.id) }

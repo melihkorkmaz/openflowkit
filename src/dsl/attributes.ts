@@ -32,7 +32,7 @@ export interface TypedAttributes {
 }
 
 /** Attributes kept in `metadata.dsl.attrs` because no scene property holds them. */
-const NON_VISUAL_KEYS = new Set(['tech', 'desc', 'kind', 'tags', 'link', 'pin', 'rank', 'width', 'height', 'order']);
+const NON_VISUAL_KEYS = new Set(['tech', 'desc', 'doc', 'kind', 'tags', 'link', 'pin', 'rank', 'width', 'height', 'order']);
 
 // Derived from the vocabulary tables so a new shape or colour word can never
 // ship without its attribute spelling being recognised (W131 would hide it).
@@ -77,7 +77,8 @@ export function readAttributes(tokens: readonly DslToken[], diagnostics: DslDiag
       }
     }
     const key = colon >= 0 ? joinTokens(part.slice(0, colon)) : undefined;
-    const value = joinTokens(colon >= 0 ? part.slice(colon + 1) : part);
+    // A `doc:` is Markdown: its line breaks are its paragraphs.
+    const value = joinTokens(colon >= 0 ? part.slice(colon + 1) : part, key?.toLowerCase() === 'doc');
     const known = (key && KNOWN_ATTRIBUTE_KEYS.has(key.toLowerCase()))
       || (!key && (KNOWN_ATTRIBUTE_WORDS.has(value.toLowerCase()) || isHexColor(value)
         || canonicalShapeWord(value) !== undefined || canonicalColorWord(value) !== undefined || isIconWord(value)));

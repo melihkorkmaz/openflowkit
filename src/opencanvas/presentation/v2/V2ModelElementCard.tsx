@@ -3,13 +3,14 @@ import {
   type ChangeEvent, type KeyboardEvent, type ReactNode,
 } from 'react';
 import {
-  IconArrowLeft, IconArrowsSplit2, IconChevronDown, IconDots, IconExternalLink, IconEye, IconPlus, IconTrash,
+  IconArrowLeft, IconArrowsSplit2, IconChevronDown, IconDots, IconExternalLink, IconEye, IconPencil, IconPlus, IconTrash,
 } from '@tabler/icons-react';
 import { defaultChildKind, type ArchElementPatch } from '../../application/dsl/architectureCommands';
 import { crossingRelations, elementAncestors, elementDescendantIds, elementPathRef, modelKindLabel, type ArchIndex, type CrossingRelation } from '../../../dsl/model/model';
 import { safeHttpsUrl } from '../../../dsl/model/relationSource';
 import type { ArchElement, ArchRelation, ArchView, ElementKind } from '../../../dsl/model/types';
 import { Button, Icon, IconButton, Menu, MenuItem } from '../design-system';
+import { Markdown } from './V2AgentParts';
 import { ElementKindIcon } from './V2ElementKindIcon';
 
 
@@ -99,6 +100,8 @@ export interface ElementCardProps {
   readonly adrs: readonly { readonly path: string; readonly text: string }[];
   /** A just-added element or "Edit in model": its Name takes focus, selected, ready to be typed over. A new request object focuses it again. */
   readonly focusName: boolean | { readonly id: string };
+  /** Opened from a node's documentation badge: the Documentation section scrolls into view and takes focus. A new request object does it again. */
+  readonly focusDoc?: false | { readonly id: string };
   /** Opened from the outline: focus moves to the back link so the keyboard stays in the panel. */
   readonly focusBack: boolean;
   /** Opens the element in the other surface (Map from Canvas, Canvas from Map), when that is possible. */
@@ -144,6 +147,18 @@ export function V2ModelElementCard(props: ElementCardProps): React.JSX.Element {
   const desc = useDraft(element.desc ?? '', normalizeText, (next) => edit({ desc: next }), { multiline: true });
   const tags = useDraft(element.tags.join(', '), normalizeTags, (next) => edit({ tags: next ? next.split(', ') : [] }));
   const links = useDraft(element.links.join('\n'), normalizeLinks, (next) => edit({ links: next ? next.split('\n') : [] }), { multiline: true });
+  const doc = useDraft(element.doc ?? '', normalizeText, (next) => edit({ doc: next }), { multiline: true });
+  const [editingDoc, setEditingDoc] = useState(false);
+  const docRef = useRef<HTMLElement>(null);
+  const docField = useRef<HTMLTextAreaElement>(null);
+  const docEdit = useRef<HTMLButtonElement>(null);
+  const writingDoc = !readOnly && (editingDoc || !element.doc);
+  useEffect(() => {
+    if (!props.focusDoc) return;
+    docRef.current?.scrollIntoView({ block: 'nearest' });
+    (docField.current ?? docEdit.current)?.focus();
+  }, [props.focusDoc]);
+  useEffect(() => { if (editingDoc) docField.current?.focus(); }, [editingDoc]);
 
   const ancestors = [...elementAncestors(index, element.id)].reverse().flatMap((id) => index.byId.get(id) ?? []);
   const descendantCount = elementDescendantIds(index, element.id).length;
@@ -252,6 +267,20 @@ export function V2ModelElementCard(props: ElementCardProps): React.JSX.Element {
           ] : [];
         })}
       </Section>
+
+      {readOnly && !element.doc ? null : (
+        <section ref={docRef} className="ofk-v2-card-sec ofk-v2-card-doc" aria-label="Documentation">
+          <h3 className="ofk-v2-card-sec-title">Documentation
+            {!readOnly && element.doc && !editingDoc
+              ? <button ref={docEdit} type="button" className="ofk-v2-card-doc-edit" onClick={() => setEditingDoc(true)}><Icon icon={IconPencil} />Edit</button> : null}
+          </h3>
+          {writingDoc ? (
+            <textarea ref={docField} className="ofk-v2-card-doc-text" aria-label="Documentation" rows={4}
+              placeholder="Notes, decisions, runbooks… Markdown works. Shown here, not on the diagram."
+              {...doc} onBlur={() => { doc.onBlur(); setEditingDoc(false); }} />
+          ) : element.doc ? <Markdown text={element.doc} /> : null}
+        </section>
+      )}
 
       {talksTo.length > 0 ? (
         <Section title="Talks to" count={talksTo.length}>

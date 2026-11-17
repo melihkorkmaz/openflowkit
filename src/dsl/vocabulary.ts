@@ -190,14 +190,14 @@ export const DIRECTIONS: Readonly<Record<string, DslDirection>> = {
 };
 
 export const ATTRIBUTE_KEYS = new Set([
-  'label', 'link', 'tech', 'desc', 'kind', 'tags', 'pin', 'rank', 'width', 'height',
+  'label', 'link', 'tech', 'desc', 'doc', 'kind', 'tags', 'pin', 'rank', 'width', 'height',
   'icon', 'iconpos', 'color', 'shape', 'fill', 'head', 'tail', 'from', 'to', 'order',
 ]);
 
 /** Canonical attribute order (grammar §5.2). Unknown words go last, in input order. */
 const ATTRIBUTE_SLOT_ORDER = [
   'shape', 'color', 'fill', 'flag', 'icon', 'iconpos', 'head', 'tail', 'from', 'to',
-  'label', 'tech', 'desc', 'kind', 'tags', 'link', 'pin', 'rank', 'width', 'height',
+  'label', 'tech', 'desc', 'doc', 'kind', 'tags', 'link', 'pin', 'rank', 'width', 'height',
 ] as const;
 
 /** Which dedupe slot a canonical word or key/value pair occupies. */

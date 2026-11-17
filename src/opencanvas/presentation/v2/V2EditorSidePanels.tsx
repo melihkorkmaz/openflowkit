@@ -54,6 +54,7 @@ interface SidePanelsProps {
   readonly repoLoading: boolean;
   readonly mapArrow: ComponentProps<typeof V2ModelPanel>['mapArrow'];
   readonly renameRequest: ComponentProps<typeof V2ModelPanel>['renameRequest'];
+  readonly docRequest: ComponentProps<typeof V2ModelPanel>['docRequest'];
   readonly selectedElementId: string | null;
   readonly placedElementIds: ReadonlySet<string>;
   readonly canvasElementIds: ReadonlySet<string>;
@@ -137,6 +138,7 @@ export function V2EditorSidePanels(p: SidePanelsProps): React.JSX.Element {
           })))}
           selectedElementId={selectedElementId}
           renameRequest={p.renameRequest}
+          docRequest={p.docRequest}
           mapArrow={p.mapArrow}
           {...(repoPanel.box ? { mapBox: repoPanel.box } : {})}
           {...(map.active && map.model ? { mapOverview: { model: map.model, arch: map.arch, onSelect: map.reveal, reading: repoSource !== null && repoLoading } } : {})}

@@ -119,6 +119,7 @@ function elementAttributes(element: ArchElement): CanonicalAttribute[] {
   if (element.icon) entries.push({ key: 'icon', value: element.icon });
   if (element.tech) entries.push({ key: 'tech', value: element.tech });
   if (element.desc) entries.push({ key: 'desc', value: element.desc });
+  if (element.doc) entries.push({ key: 'doc', value: element.doc });
   if (element.tags.length) entries.push({ key: 'tags', value: element.tags.join(', ') });
   for (const link of element.links) entries.push({ key: 'link', value: link });
   return sortAttributes(entries);

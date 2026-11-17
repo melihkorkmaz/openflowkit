@@ -96,6 +96,7 @@ export function parseArchitectureWorkspace(
       tags: declaration.tags,
       ...(typed.values.has('tech') ? { tech: typed.values.get('tech')! } : {}),
       ...(typed.values.has('desc') ? { desc: typed.values.get('desc')! } : {}),
+      ...(typed.values.has('doc') ? { doc: typed.values.get('doc')! } : {}),
       links: declaration.attrs.filter((entry) => entry.key === 'link').map((entry) => entry.value),
       ...(typed.values.has('icon') ? { icon: typed.values.get('icon')! } : {}),
       ...(typed.values.has('color') ? { color: typed.values.get('color')! } : {}),

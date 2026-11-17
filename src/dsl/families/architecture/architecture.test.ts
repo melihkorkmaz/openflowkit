@@ -71,6 +71,23 @@ views {
 `);
   });
 
+  it('keeps a multi-line doc as one escaped attribute, off the drawn card', async () => {
+    const text = `architecture
+model {
+  container API [desc: Order calls, doc: "## Runbook\\nRestart with \\"make up\\"."]
+}
+`;
+    const formatted = await format(text);
+    expect(formatted).toContain('container API [desc: Order calls, doc: "## Runbook\\nRestart with \\"make up\\"."]');
+    expect(await format(formatted)).toBe(formatted);
+    const compiled = await compile(text);
+    const raw = dslFrameRaw(compiled.frame);
+    const api = (raw.arch as { model: { elements: { id: string; doc?: string }[] } }).model.elements.find((element) => element.id === 'api');
+    expect(api?.doc).toBe('## Runbook\nRestart with "make up".');
+    const node = compiled.nodes.find((candidate) => candidate.id === 'api');
+    expect(JSON.stringify(node?.content ?? {})).not.toContain('Runbook');
+  });
+
   it('container level keeps store: cylinder', async () => {
     expect(await format(CONTAINER)).toBe(`%% ofk 1
 architecture

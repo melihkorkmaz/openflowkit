@@ -331,7 +331,15 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
   const selectedElementId = selectedNode ? placedElementId(selectedNode) : null;
   const [renameRequest, setRenameRequest] = useState<{ readonly id: string } | null>(null);
   // Spent once the panel closes: reopening it from the rail is not another rename.
-  useEffect(() => { if (panels.workspace !== 'model') setRenameRequest(null); }, [panels.workspace]);
+  // A node's documentation badge: the model panel opens on that element with its Documentation in view.
+  const [docRequest, setDocRequest] = useState<{ readonly id: string } | null>(null);
+  useEffect(() => { if (panels.workspace !== 'model') { setRenameRequest(null); setDocRequest(null); } }, [panels.workspace]);
+  const documented = useMemo(() => new Set((architecture.model?.elements ?? []).flatMap((element) => (element.doc ? [element.id] : []))), [architecture.model]);
+  const openDoc = useCallback((badge: { readonly nodeId: string; readonly elementId: string }) => {
+    selectNodes([badge.nodeId]);
+    setDocRequest({ id: badge.elementId });
+    openWorkspace('model');
+  }, [selectNodes, openWorkspace]);
   // Map's start screen writes a model: its panel opens once the model is there, never on an empty "create one" state.
   const [modelPanelOnStart, setModelPanelOnStart] = useState(false);
   useEffect(() => {
@@ -441,7 +449,7 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
               canvasColor={canvasColor} showGrid={preferences.showGrid} snapToGrid={preferences.snapToGrid} drawCommit={drawCommit}
               applySelection={applySelection} applyConnectorSelection={applyConnectorSelection} openEditor={openEditor} setTool={setTool}
               setContextMenu={setContextMenu} setRendererStatus={setRendererStatus} extendConnectorCommand={extendConnectorCommand}
-              openChartData={openChartData} editBox={editBox} setModelPanelOnStart={setModelPanelOnStart} />
+              openChartData={openChartData} editBox={editBox} setModelPanelOnStart={setModelPanelOnStart} docs={{ documented, onOpen: openDoc }} />
             <V2EditorContextMenu
               target={contextMenu} page={page} viewPage={viewPage ?? page} selection={selection} selectionRef={selectionRef} selectionApi={selectionApi}
               selectedNode={selectedNode} selectedElementId={selectedElementId} editLocked={editLocked} docReadOnly={docReadOnly}
@@ -465,7 +473,7 @@ export function V2EditorPage({ shared }: { readonly shared?: V2SharedView } = {}
               panels={panels} code={code} preferences={preferences} updatePreferences={updatePreferences} agents={agents} session={session}
               viewPage={viewPage ?? page} selection={selection} selectedConnectorIds={selectedConnectorIds} selectionApi={selectionApi} selectNodes={selectNodes}
               camera={camera} architecture={architecture} architectureActions={architectureActions} playback={playback} endFlow={endFlow} map={map}
-              repoPanel={repoPanel} repoSource={repoSource} repoLoading={repo.state.status === 'loading'} mapArrow={mapArrow} renameRequest={renameRequest}
+              repoPanel={repoPanel} repoSource={repoSource} repoLoading={repo.state.status === 'loading'} mapArrow={mapArrow} renameRequest={renameRequest} docRequest={docRequest}
               selectedElementId={selectedElementId} placedElementIds={placedElementIds} canvasElementIds={canvasElementIds} showOnCanvas={showOnCanvas}
               workspaceFolder={workspaceFolder} docReadOnly={docReadOnly} pushToast={pushToast} setAnnouncement={setAnnouncement} focusCanvas={focusCanvas}
               threads={threads} toggleCode={toggleCode} publicView={Boolean(shared && !shared.onEdit)}>

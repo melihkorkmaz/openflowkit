@@ -258,10 +258,12 @@ by vocabulary; the same word means the same thing everywhere. Two words of the s
   `tech:`, `desc:`, `kind:`, `tags:` (comma list; `@tag` is sugar, §9), `pin:` (`x,y`),
   `rank:` (int), `width:`/`height:` (px), `icon:`, `iconpos:`, `color:`, `shape:`, `fill:`.
   Key values containing `,` or `]` must be quoted.
+- **doc** (model elements): `doc: "…"` is Markdown documentation, `\n` for a line break. It is
+  shown in the model panel and never drawn; a documented element gets a badge on the canvas.
 
 ### 5.2 Canonical attribute order
 `shape, colour, fill, flags (shadow, thick, invisible, flow), icon, iconpos, head/tail, from/to,
-label, tech, desc, kind, tags, link, pin, rank, width, height, unknown…`. Within a class,
+label, tech, desc, doc, kind, tags, link, pin, rank, width, height, unknown…`. Within a class,
 canonical spelling from the tables above. Defaults are never emitted (`rect`, `pastel`,
 `head: arrow`). An empty list is not emitted. `pin:` is written `pin: "x,y"` (a comma
 inside a value is quoted); `pin: 240,80` is accepted on input.

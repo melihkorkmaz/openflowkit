@@ -245,6 +245,19 @@ describe('element edits', () => {
     expect(undone).toEqual(document);
   });
 
+  it('saves documentation to the model on every view without drawing it, as one undo step', async () => {
+    const document = await generatedDocument();
+    const before = document.pages.flatMap((page) => page.nodes).filter((node) => placedElementId(node) === 'shop.web');
+    const applied = apply(document, buildArchElementEditCommand(document, 'shop.web', { doc: '## Runbook\nRestart it.' })!);
+    for (const page of applied.document.pages.filter((candidate) => archViewIdOfPage(candidate))) {
+      expect(archModelOfPage(page)!.elements.find((element) => element.id === 'shop.web')?.doc).toBe('## Runbook\nRestart it.');
+    }
+    const after = applied.document.pages.flatMap((page) => page.nodes).filter((node) => placedElementId(node) === 'shop.web');
+    expect(after.map((node) => node.content)).toEqual(before.map((node) => node.content));
+    expect(buildArchElementEditCommand(applied.document, 'shop.web', { doc: '## Runbook\nRestart it.  ' })).toBeNull();
+    expect(applyDocumentCommand(applied.document, applied.inverse).document).toEqual(document);
+  });
+
   it('keeps the kind-colour marker consistent with the element colour', async () => {
     const document = await generatedDocument(WORKSPACE.replace('person Customer', 'person Customer [icon: tabler/user]'));
     const placed = (doc: SceneDocumentV1) => doc.pages.flatMap((page) => page.nodes).filter((node) => placedElementId(node) === 'customer');

@@ -8,6 +8,7 @@ import type { PixiRendererHost, PixiRendererStatus } from '../../infrastructure/
 import { EmptyState, Button, ErrorState, type ToastItem } from '../design-system';
 import { V2CanvasHost } from './V2CanvasHost';
 import { V2Comments, type V2CommentApi } from './V2Comments';
+import { V2DocBadges, type DocBadge } from './V2DocBadges';
 import type { V2Tool } from './V2CreationToolbar';
 import { V2StateHero } from './V2StateHero';
 import { mapRepoPath, V2MapStart } from './map/V2MapStart';
@@ -80,6 +81,8 @@ interface EditorCanvasProps {
   readonly openChartData: (nodeId: string) => boolean;
   readonly editBox: (nodeId: string) => void;
   readonly setModelPanelOnStart: (on: boolean) => void;
+  /** Elements with documentation get a badge on their node; a click opens it. */
+  readonly docs: { readonly documented: ReadonlySet<string>; readonly onOpen: (badge: DocBadge) => void };
 }
 
 /** The canvas and what Map draws over it: the repo overlay, the agent's cursor, the start, empty and error screens. */
@@ -125,6 +128,8 @@ export function V2EditorCanvas(p: EditorCanvasProps): React.JSX.Element {
         panelsKey={[panels.workspace, panels.shortcutsOpen, panels.chartId, panels.treeOpen, panels.motionOpen].join()}
         toast={p.comments.toast} updateThreads={p.comments.updateThreads} request={p.comments.request} onOpenThreadChange={p.comments.onOpenThreadChange}
         unread={p.comments.unread} />
+      <V2DocBadges page={p.viewPage} documented={p.docs.documented} hostRef={p.hostRef} cameraRef={p.camera.cameraRef}
+        subscribeCamera={p.camera.subscribe} onOpen={p.docs.onOpen} />
       {p.agentCursor}
       {map.start ? (
         <V2MapStart busy={code.generating} onStartModel={() => { void code.startFrom(C4_STARTER, { openPanel: false }).then(counted('created_template')); p.setModelPanelOnStart(true); }}

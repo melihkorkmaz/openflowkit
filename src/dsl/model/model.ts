@@ -284,6 +284,7 @@ function elementFromJson(value: unknown): ArchElement | null {
     ...(canonicalAttrs(value.attrs).length ? { attrs: canonicalAttrs(value.attrs) } : {}),
     ...(typeof value.tech === 'string' ? { tech: value.tech } : {}),
     ...(typeof value.desc === 'string' ? { desc: value.desc } : {}),
+    ...(typeof value.doc === 'string' ? { doc: value.doc } : {}),
     ...(typeof value.icon === 'string' ? { icon: value.icon } : {}),
     ...(typeof value.color === 'string' ? { color: value.color } : {}),
     ...(typeof value.env === 'string' ? { env: value.env } : {}),

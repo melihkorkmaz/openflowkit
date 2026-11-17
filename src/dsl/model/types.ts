@@ -22,6 +22,8 @@ export interface ArchElement {
   readonly parent: string | null;
   readonly tech?: string;
   readonly desc?: string;
+  /** Longer notes (Markdown) shown in the model panel, never drawn on the node. */
+  readonly doc?: string;
   readonly tags: readonly string[];
   readonly links: readonly string[];
   readonly icon?: string;

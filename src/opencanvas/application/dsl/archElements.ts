@@ -38,9 +38,10 @@ export function optional(value: string | undefined): string | undefined {
 function mergeElement(element: ArchElement, patch: ArchElementPatch): ArchElement | null {
   const name = patch.name?.trim() || element.name;
   if (!name.trim()) return null;
-  const { tech: _tech, desc: _desc, color: _color, icon: _icon, ...rest } = element;
+  const { tech: _tech, desc: _desc, doc: _doc, color: _color, icon: _icon, ...rest } = element;
   const tech = optional(patch.tech ?? element.tech);
   const desc = optional(patch.desc ?? element.desc);
+  const doc = optional(patch.doc ?? element.doc);
   const color = optional(patch.color ?? element.color);
   const icon = optional(patch.icon ?? element.icon);
   const tags = (patch.tags ?? element.tags).map((tag) => tag.trim().toLowerCase()).filter(Boolean);
@@ -49,10 +50,11 @@ function mergeElement(element: ArchElement, patch: ArchElementPatch): ArchElemen
     ...rest, name, tags, links,
     ...(tech ? { tech } : {}),
     ...(desc ? { desc } : {}),
+    ...(doc ? { doc } : {}),
     ...(color ? { color } : {}),
     ...(icon ? { icon } : {}),
   };
-  const unchanged = (['name', 'tech', 'desc', 'color', 'icon'] as const).every((key) => merged[key] === element[key])
+  const unchanged = (['name', 'tech', 'desc', 'doc', 'color', 'icon'] as const).every((key) => merged[key] === element[key])
     && JSON.stringify(merged.tags) === JSON.stringify(element.tags)
     && JSON.stringify(merged.links) === JSON.stringify(element.links);
   return unchanged ? null : merged;
