@@ -41,3 +41,8 @@ added to the CSP. Back up the data folder; WAL mode keeps a `-wal` file beside t
 database while it runs.
 
 Schema changes are numbered migrations in `database.ts`, applied at start-up.
+
+Published links use `/p/<slug>` and open without sign-in; existing `/#/p/<slug>`
+links still work. The web host must serve `index.html` for `/p/*` (the supplied
+nginx configuration already does). Rebuild both web and API when updating from
+hash-based public links, so the new links have a matching viewer.

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   APP_VERSION, ensureInstall, entryOf, flushUsage, onTrack, pendingUsage, resetUsageForTest, setUsageSwitch, sourceOf,
-  startUsage, track, trackOnce, usageAllowed, usageSwitchOn, type UsageEnvironment,
+  startUsage, track, trackOnce, usageAllowed, usageSwitchOn, isViewerRoute, type UsageEnvironment,
 } from './usage';
 import type { UsageBeacon } from './usageEvents';
 
@@ -38,8 +38,16 @@ describe('sourceOf', () => {
 describe('entryOf', () => {
   it.each([
     ['', 'home'], ['#/', 'home'], ['#/home', 'home'], ['#/d/doc-1', 'doc'], ['#/s/abc/key', 'shared'],
+    ['#/p/published', 'shared'], ['/p/published', 'shared'],
     ['#/map/github/o/r', 'map'], ['#/from/github/o/r', 'map'], ['#/from/dsl?d=x', 'doc'],
   ] as const)('%s → %s', (hash, entry) => expect(entryOf(hash)).toBe(entry));
+});
+
+describe('isViewerRoute', () => {
+  it.each(['#/s/abc/key', '#/p/published', '/p/published'])(
+    'recognises %s as a read-only viewer', (route) => expect(isViewerRoute(route)).toBe(true),
+  );
+  it('excludes owner documents', () => expect(isViewerRoute('#/d/doc-1')).toBe(false));
 });
 
 describe('usageAllowed', () => {

@@ -93,7 +93,7 @@ export function createApiHandler(options: ApiOptions): (request: IncomingMessage
     const host = (options.trustProxy ? request.headers['x-forwarded-host'] : undefined) ?? request.headers.host ?? 'localhost';
     const proto = options.trustProxy && typeof request.headers['x-forwarded-proto'] === 'string' ? request.headers['x-forwarded-proto'] : 'http';
     const base = (options.appUrl ?? `${proto}://${String(host)}`).replace(/\/+$/, '');
-    return `${base}/#/p/${slug}`;
+    return `${base}/p/${slug}`;
   }
 
   async function owner(request: IncomingMessage): Promise<string> {

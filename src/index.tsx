@@ -19,8 +19,9 @@ if (cleanSearch !== null) window.history.replaceState(null, '', `${window.locati
 // A deploy replaced the hashed chunks under this tab; one reload fetches the new build.
 window.addEventListener('vite:preloadError', () => { reloadOnStaleChunk(); });
 
-startUsage({ entry: entryOf(window.location.hash) });
-startFeedbackSession(Date.now(), isViewerRoute(window.location.hash));
+const viewer = isViewerRoute(window.location.pathname) || isViewerRoute(window.location.hash);
+startUsage({ entry: viewer ? 'shared' : entryOf(window.location.hash) });
+startFeedbackSession(Date.now(), viewer);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Could not find root element to mount to');

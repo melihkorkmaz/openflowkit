@@ -121,8 +121,10 @@ describe('public pages', () => {
   it('serves only the published revision, without owner ids, until unpublished', async () => {
     await call('/docs/d1', { method: 'PUT', token: alice, json: { document: labeled('Public'), revision: 1 } });
     const published = await (await call('/docs/d1/publish', { method: 'POST', token: alice })).json();
-    expect(published).toMatchObject({ publishedRevision: 1, publicUrl: `https://app.example/#/p/${published.slug}` });
+    expect(published).toMatchObject({ publishedRevision: 1, publicUrl: `https://app.example/p/${published.slug}` });
     expect(published.slug).toHaveLength(43);
+    const status = await (await call('/docs/d1/publish', { token: alice })).json();
+    expect(status.publicUrl).toBe(published.publicUrl);
     expect(audit.find((entry) => entry.event === 'publish')?.fields).toMatchObject({ owner: 'user_alice', document: 'd1' });
     expect(JSON.stringify(audit)).not.toContain(published.slug);
 

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { lastDocumentId, mintV2Id } from '@/opencanvas/presentation/v2/v2Document';
 import { V2ErrorBoundary } from '@/opencanvas/presentation/v2/V2ErrorBoundary';
 import { BrandLoader } from '@/opencanvas/presentation/v2/BrandLoader';
@@ -98,8 +98,11 @@ function OwnerRoutes(): React.JSX.Element {
 }
 
 export default function App(): React.JSX.Element {
+  // Public addresses must survive security warning pages that discard URL fragments.
+  // Owner screens and existing bookmarks keep their hash routes.
+  const Router = window.location.pathname.startsWith('/p/') ? BrowserRouter : HashRouter;
   return (
-    <HashRouter>
+    <Router>
       <V2ErrorBoundary>
         <Suspense fallback={<BrandLoader screen label="Loading OpenFlowKit" />}>
           <Routes>
@@ -109,6 +112,6 @@ export default function App(): React.JSX.Element {
           </Routes>
         </Suspense>
       </V2ErrorBoundary>
-    </HashRouter>
+    </Router>
   );
 }

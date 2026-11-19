@@ -26,7 +26,7 @@ smoke the MCP Worker, push `mcp-vX.Y.Z` (registry), then the app tag `vX.Y.Z` (i
 - Comment threads: pins on the canvas, the Threads panel, agent tools; a `.openflow.json` keeps them, exports and
   share links leave them out unless **Include comments**.
 - Code editor icon search; Clerk 6 modal sign-in — Codex 11-13. Element `doc:` notes + node badge — Claude 11-17.
-
+- Public `/p/` links + legacy hash support — Codex 11-19; unit/API + build checked, e2e waived.
 ## Known ceilings (`// ponytail:` in code)
 - Whole SVG re-emitted per export; GIF 256 colours ≤ 20 fps; headless layout 1000 shapes / 400 connections.
 - Translucent `#rrggbbaa` fills count as opaque for label ink; off-screen comment pins are culled (out of Tab order).

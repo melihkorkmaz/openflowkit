@@ -13,7 +13,7 @@ const Editor = lazy(async () => ({ default: (await import('./V2EditorPage')).V2E
 const NOT_SET_UP: PublishedDocument = { status: 'error', retry: false, message: 'Public links are not set up on this site.' };
 
 /**
- * `#/p/:slug`: a published snapshot in the read-only viewer a share link opens — pages, Map mode with its
+ * `/p/:slug` (also legacy `#/p/:slug`): a published snapshot in the read-only viewer — pages, Map mode with its
  * click-to-open layers, no write path. No "Edit a copy": the reader may not be signed in.
  */
 export function V2PublicPage(): React.JSX.Element {

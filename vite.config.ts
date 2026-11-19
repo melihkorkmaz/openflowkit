@@ -66,7 +66,9 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
-    base: './',
+    // Published pages live at /p/:slug; their scripts and styles still load from the app root.
+    // Browser-only builds keep relative assets for portable hosting.
+    base: loadEnv(mode, __dirname, 'VITE_').VITE_OPENFLOWKIT_API_URL?.trim() ? '/' : './',
     build: {
       chunkSizeWarningLimit: 900,
       modulePreload: false,

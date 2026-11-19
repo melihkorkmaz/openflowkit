@@ -38,14 +38,14 @@ export function sourceOf(search: string, referrer: string, ownHost: string): str
 
 /** The route a visit landed on. The bare root opens the last diagram, but it is the app's front door. */
 export function entryOf(hash: string): UsageEntry {
-  if (/^#\/s\//.test(hash)) return 'shared';
+  if (isViewerRoute(hash)) return 'shared';
   if (/^#\/(map|from)\/github\//.test(hash)) return 'map';
   if (/^#\/(d|v2|flow|from)\//.test(hash)) return 'doc';
   return 'home';
 }
 
 /** The read-only viewer of a share link: nothing is sent from it. */
-export const isViewerRoute = (hash: string): boolean => /^#\/s\//.test(hash);
+export const isViewerRoute = (route: string): boolean => /^#?\/p\//.test(route) || /^#\/s\//.test(route);
 
 export interface UsageEnvironment {
   /** localStorage `ofk.usage`: 'off' (Settings), 'on' (opts a dev build in, for e2e), or null. */
@@ -136,7 +136,7 @@ export function onTrack(listener: Listener): () => void {
 export function flushUsage(now = Date.now()): void {
   if (!context) return;
   if (!enabled()) { counts = {}; return; }
-  if (isViewerRoute(window.location.hash)) return;
+  if (isViewerRoute(window.location.pathname) || isViewerRoute(window.location.hash)) return;
   const sent = Object.fromEntries(Object.entries(counts).filter(([, value]) => (value ?? 0) > 0)) as UsageBeacon['counts'];
   if (Object.keys(sent).length === 0) return;
   const store = storage();
